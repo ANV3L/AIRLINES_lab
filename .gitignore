@@ -10,5 +10,5 @@ resources/processed/*
 !resources/processed/README.md
 
 
-src/elchaninov/build/
-src/elchaninov/cmake-build-debug/
+src/xml_and_json_parsers/build/
+src/xml_and_json_parsers/cmake-build-debug/
