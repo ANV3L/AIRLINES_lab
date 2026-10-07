@@ -1,0 +1,14 @@
+.venv/
+.idea/
+resources/raw/*
+resources/interim/*
+resources/processed/*
+
+
+!resources/raw/README.md
+!resources/interim/README.md
+!resources/processed/README.md
+
+
+src/xml_and_json_parsers/build/
+src/xml_and_json_parsers/cmake-build-debug/
