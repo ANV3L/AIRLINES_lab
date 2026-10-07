@@ -11,4 +11,4 @@ resources/processed/*
 
 
 src/elchaninov/build/
-
+src/elchaninov/cmake-build-debug/
