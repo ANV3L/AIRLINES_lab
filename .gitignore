@@ -1,0 +1,14 @@
+.venv/
+.idea/
+resources/raw/*
+resources/interim/*
+resources/processed/*
+
+
+!resources/raw/README.md
+!resources/interim/README.md
+!resources/processed/README.md
+
+
+src/elchaninov/build/
+
