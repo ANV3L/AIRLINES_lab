@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(collect LANGUAGES CXX VERSION 1.0.0)
 
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL "" FORCE)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -20,10 +22,15 @@ FetchContent_Declare(
         DOWNLOAD_EXTRACT_TIMESTAMP ON
 )
 
-FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_Declare(
+        pugixml
+        GIT_REPOSITORY https://github.com/zeux/pugixml.git
+        GIT_TAG        v1.14
+)
+FetchContent_MakeAvailable(nlohmann_json pugixml)
 
 
-add_subdirectory(src)
+add_subdirectory(parser_files)
 
 add_executable(collect main.cpp)
-target_link_libraries(collect PRIVATE src)
+target_link_libraries(collect PRIVATE parsers pugixml-static)

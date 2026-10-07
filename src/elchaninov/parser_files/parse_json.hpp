@@ -8,7 +8,7 @@
 
 using json = nlohmann::json;
 
-inline std::string csv_escape(const std::string& s) {
+inline std::string csv_escape_json(const std::string& s) {
     bool need_quotes = s.find('|') != std::string::npos ||
                        s.find('"') != std::string::npos ||
                        s.find('\n') != std::string::npos;
@@ -41,7 +41,7 @@ inline void write_csv(const std::string& input_path, std::ostream& out) {
 
     size_t count = 0;
     for (const auto& profile : root.at("Forum Profiles")) {
-        std::cout << "--" << count++ << std::endl;
+        std::cout << "--json_parse: " << count++ << std::endl;
         auto it = profile.find("Registered Flights");
         if (it == profile.end() || !it->is_array()) continue;
 
@@ -49,15 +49,15 @@ inline void write_csv(const std::string& input_path, std::ostream& out) {
             const auto& dep = f.at("Departure");
             const auto& arr = f.at("Arrival");
 
-            out << csv_escape(f.value("Date", ""))                 << '|'
+            out << csv_escape_json(f.value("Date", ""))                 << '|'
                 << (f.value("Codeshare", false) ? "true" : "false")  << '|'
-                << csv_escape(f.value("Flight", ""))               << '|'
-                << csv_escape(dep.value("City", ""))               << '|'
-                << csv_escape(dep.value("Airport", ""))            << '|'
-                << csv_escape(dep.value("Country", ""))            << '|'
-                << csv_escape(arr.value("City", ""))               << '|'
-                << csv_escape(arr.value("Airport", ""))            << '|'
-                << csv_escape(arr.value("Country", ""))            << '\n';
+                << csv_escape_json(f.value("Flight", ""))               << '|'
+                << csv_escape_json(dep.value("City", ""))               << '|'
+                << csv_escape_json(dep.value("Airport", ""))            << '|'
+                << csv_escape_json(dep.value("Country", ""))            << '|'
+                << csv_escape_json(arr.value("City", ""))               << '|'
+                << csv_escape_json(arr.value("Airport", ""))            << '|'
+                << csv_escape_json(arr.value("Country", ""))            << '\n';
         }
     }
 }
