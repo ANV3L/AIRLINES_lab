@@ -1,4 +1,0 @@
-gdown
-
--r src/tab_parser/requirements.txt
--r src/xlsx_parser/requirements.txt
