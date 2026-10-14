@@ -4,6 +4,10 @@ resources/raw/*
 resources/interim/*
 resources/processed/*
 
+**/__pycache__/
+*.pyc
+
+**/build/
 
 !resources/raw/README.md
 !resources/interim/README.md
