@@ -8,10 +8,10 @@ import gdown
   pip install -r requirements.txt;
   
 Скачивание вообще всех файлов:
-  python fetch_resourses.py
+  python fetch_resources.py
   
 Скачивание всех кроме RAW
-  python fetch_resourses.py --only_processed=True  
+  python fetch_resources.py --only_processed=True  
 '''
 
 # Путь, куда сохраняем сырые данные

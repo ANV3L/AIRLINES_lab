@@ -1,52 +1,65 @@
+# Запуск скриптов
+
 ## 📋 Требования
 
-- Python **3.10+**
+- **Python 3.10+**
+- **make**
 
 ## 🚀 Установка и запуск
 
-### 1. Создать виртуальное окружение
+### 1. Скачать данные с дисков:
 
 ```bash
-python -m venv .venv
+make fetch_all
 ```
 
-### 2. Активировать его
-
-**Linux / macOS:**
+### 1.1. Чтобы скачать только processed:
 
 ```bash
-source .venv/bin/activate
+make fetch_only_processed
 ```
 
-**Windows (PowerShell):**
-
-```powershell
-.venv\Scripts\Activate.ps1
+### 2. Преобразовать все данные в .csv
+```bash
+make convert_to_csv
 ```
 
-**Windows (cmd):**
-
-```cmd
-.venv\Scripts\activate.bat
-```
-
-### 3. Установить зависимости
+### 2.1 Преобразовать конкретные файлы
 
 ```bash
-pip install -r requirements.txt
+make xml_json_to_csv
 ```
-
-### 4. Подгрузить все данные с Google Drive
-Ссылка на Google Drive, откуда будут скачаны обработанные файлы:
-    https://drive.google.com/drive/folders/1fDevjQeHCYMPit5-NtZZj6srkdTIcAv9?usp=drive_link
-
-Скачивание вообще всех файлов:
 ```bash
-python fetch_resourses.py
+make yaml_to_csv
 ```
-
-Скачивание всех кроме RAW (исходных):
 ```bash
-python fetch_resourses.py --only_processed=True
+make tab_to_csv
+```
+```bash
+make xlsx_to_csv
+```
+```bash
+make pdf_to_csv #пока сломано
 ```
 
+
+### 3. Чтобы очистить каталоги в resources:
+
+```bash
+make clean_all
+```
+
+### 3.1. Чтобы очистить конкретные каталоги в resources:
+
+Обработанные данные:
+```bash
+make clean_processed
+```
+Сырые данные:
+```bash
+make clean_raw
+```
+Промежуточные данные:
+```bash
+make clean_interim
+```
