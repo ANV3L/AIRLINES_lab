@@ -5,7 +5,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parents[2]
 INPUT      = BASE / "resources" / "raw"       / "BoardingData.csv"
 OUT_BAD    = BASE / "resources" / "processed" / "bad_document.csv"
-OUT_SPIES  = BASE / "src"       / "spies_finder_in_BoardingData.csv" / "SPIES.md"
+OUT_SPIES  = BASE / "src"       / "spies_finder_in_BoardingData_csv" / "SPIES.md"
 
 EMPTY_DOC_VALUES = {"", "NOT PRESENTED", "N/A", "NONE", "-"}
 
@@ -24,6 +24,11 @@ def secondname_match(a: str, b: str) -> bool:
     V. == VSEVOLODOVICH ?     → True
     A. == VSEVOLODOVICH ?     → False
     IVANOVICH == PETROVICH ?  → False
+
+    --- случаи с пустым отчеством ---
+    "" == IVANOVICH ?         → True   # пустое = «неизвестно», не считаем различием
+    IVANOVICH == "" ?         → True   # (симметрично)
+    "" == "" ?                → True   # у обоих нет отчества — тоже считаем совпадением
     """
     if a == b:
         return True
