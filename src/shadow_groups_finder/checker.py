@@ -1,6 +1,8 @@
 import csv
 import re
+import time
 from collections import defaultdict
+from itertools import combinations
 from pathlib import Path
 
 # ---------- пути ----------
@@ -10,7 +12,7 @@ OUT_SHADOW = BASE / "resources" / "processed" / "shadow_groups.csv"
 OUT_SPIES = Path(__file__).resolve().parent / "SPIES.md"
 
 # ---------- конфиг ----------
-MIN_SHARED_FLIGHTS = 2
+MIN_SHARED_FLIGHTS = 2  # Минимум совместных рейсов (в одни и те же даты)
 EMPTY_VALUES = {"", "NOT PRESENTED", "N/A", "NONE", "-", "NULL"}
 DELIMS = ["|", ";", ",", "\t"]
 
@@ -88,6 +90,9 @@ def patronymic_compatible(a: str, b: str) -> bool:
 
 # ---------- КАНОНИЗАЦИЯ ИМЕН ----------
 def apply_canonical_names(all_records):
+    print("[STEP 1/5] Канонизация имен (склейка инициалов и полных имен)...")
+    t0 = time.time()
+
     name_counts = defaultdict(int)
     for r in all_records:
         name_counts[r["name"]] += 1
@@ -99,7 +104,6 @@ def apply_canonical_names(all_records):
             groups[(parts[0], parts[1])].append(name)
 
     canonical_map = {}
-
     for key, names in groups.items():
         by_pat = defaultdict(list)
         for n in names:
@@ -114,7 +118,6 @@ def apply_canonical_names(all_records):
 
         sorted_pats = sorted(by_pat.keys(), key=lambda p: (-len(p), p))
         pat_mapping = {}
-
         for i, pat in enumerate(sorted_pats):
             if pat in pat_mapping: continue
             pat_mapping[pat] = pat
@@ -134,6 +137,9 @@ def apply_canonical_names(all_records):
         if r["name"] in canonical_map:
             r["name"] = canonical_map[r["name"]]
 
+    print(
+        f"    -> Уникальных имен до: {len(name_counts)}, после: {len(set(r['name'] for r in all_records))} (за {time.time() - t0:.2f} сек)")
+
 
 # ---------- парсинг ----------
 def read_boarding_data(p: Path):
@@ -148,10 +154,11 @@ def read_boarding_data(p: Path):
                 "name": name,
                 "flight": normalize_flight(row.get("FlightNumber", "")),
                 "date": normalize_date(row.get("FlightDate", "")),
-                "agency": "",  # В этом файле нет агентства
+                "agency": "",
                 "booking": clean(row.get("BookingCode", "")),
                 "docs": {clean(row.get("PassengerDocument", "")), clean(row.get("TicketNumber", ""))} - {""}
             })
+    print(f"    -> {p.name}: {len(rows)} записей")
     return rows
 
 
@@ -166,10 +173,11 @@ def read_sirena(p: Path):
                 "name": name,
                 "flight": normalize_flight(row.get("FlightCode", "")),
                 "date": normalize_date(row.get("DepartDate", "")),
-                "agency": clean(row.get("AgentInfo", "")),  # Берем именно агентство
+                "agency": clean(row.get("AgentInfo", "")),
                 "booking": clean(row.get("Code", "")),
                 "docs": {clean(row.get("TravelDoc", "")), clean(row.get("e-Ticket", ""))} - {""}
             })
+    print(f"    -> {p.name}: {len(rows)} записей")
     return rows
 
 
@@ -184,15 +192,21 @@ def read_cleaned_pass(p: Path):
                 "name": name,
                 "flight": normalize_flight(row.get("Номер_рейса", "")),
                 "date": normalize_date(row.get("Дата_вылета", "")),
-                "agency": "",  # В этом файле нет агентства
+                "agency": "",
                 "booking": clean(row.get("PNR_бронь", "")),
                 "docs": {clean(row.get("Номер_эл_билета", "")), clean(row.get("Бонусная_карта", ""))} - {""}
             })
+    print(f"    -> {p.name}: {len(rows)} записей")
     return rows
 
 
 # ---------- основной анализ ----------
 def main():
+    print("=" * 60)
+    print("🚀 ЗАПУСК АНАЛИЗА ТЕНЕВЫХ ГРУПП")
+    print("=" * 60)
+
+    print("[STEP 0/5] Чтение файлов...")
     files = {
         "BoardingData": TEMP / "BoardingData_parsed.csv",
         "sirena": TEMP / "sirena_parsed.csv",
@@ -203,181 +217,178 @@ def main():
     if files["BoardingData"].exists(): all_records.extend(read_boarding_data(files["BoardingData"]))
     if files["sirena"].exists(): all_records.extend(read_sirena(files["sirena"]))
     if files["cleaned_boarding_pass"].exists(): all_records.extend(read_cleaned_pass(files["cleaned_boarding_pass"]))
-
-    print(f"[i] Всего записей о перелетах до очистки: {len(all_records)}")
+    print(f"    -> Всего записей о перелетах: {len(all_records)}\n")
 
     apply_canonical_names(all_records)
+    print()
 
+    print("[STEP 2/5] Группировка пассажиров по рейсам...")
+    t0 = time.time()
     pax_flights = defaultdict(set)
+    flight_passengers = defaultdict(list)
+    pax_info = defaultdict(lambda: {"agencies": set(), "bookings": set(), "docs": set(), "raw_name": ""})
+
     for r in all_records:
         if r["flight"] and r["date"]:
-            pax_flights[r["name"]].add((r["flight"], r["date"]))
+            fid = f"{r['flight']}_{r['date']}"
+            pax_flights[r["name"]].add(fid)
+            flight_passengers[fid].append(r["name"])
 
-    active_pax = {name for name, flights in pax_flights.items() if len(flights) >= MIN_SHARED_FLIGHTS}
-    print(f"[i] Уникальных пассажиров с >= {MIN_SHARED_FLIGHTS} рейсами: {len(active_pax)}")
-
-    by_flight = defaultdict(list)
-    for r in all_records:
-        if r["flight"] and r["date"] and r["name"] in active_pax:
-            by_flight[(r["flight"], r["date"])].append(r)
-
-    pax_info = defaultdict(lambda: {"agencies": set(), "bookings": set(), "docs": set(), "raw_name": ""})
-    for r in all_records:
         if r["agency"]: pax_info[r["name"]]["agencies"].add(r["agency"])
         if r["booking"]: pax_info[r["name"]]["bookings"].add(r["booking"])
         pax_info[r["name"]]["docs"] |= r["docs"]
         if not pax_info[r["name"]]["raw_name"]:
             pax_info[r["name"]]["raw_name"] = r["name"]
 
+    print(f"    -> Уникальных рейсов (с датами): {len(flight_passengers)}")
+    print(f"    -> Завершено за {time.time() - t0:.2f} сек\n")
+
+    print("[STEP 3/5] Поиск пар, летавших вместе (может занять время)...")
+    t0 = time.time()
     pair_counts = defaultdict(int)
-    pair_flights = defaultdict(set)
-
     flight_count = 0
-    print("[i] Анализ совместных перелетов...")
-    for (flight, date), records in by_flight.items():
+    total_flights = len(flight_passengers)
+
+    # Сравниваем только тех, кто был на одном рейсе
+    for fid, names in flight_passengers.items():
         flight_count += 1
-        if flight_count % 5000 == 0:
-            print(f"    ... обработано {flight_count} рейсов")
+        if flight_count % 10000 == 0:
+            print(f"    ... обработано {flight_count}/{total_flights} рейсов", end="\r", flush=True)
 
-        pax_on_flight = {}
-        for r in records:
-            name = r["name"]
-            if name not in pax_on_flight:
-                pax_on_flight[name] = {"docs": set(), "bookings": set()}
-            pax_on_flight[name]["docs"] |= r["docs"]
-            if r["booking"]:
-                pax_on_flight[name]["bookings"].add(r["booking"])
+        unique_names = list(set(names))
+        if len(unique_names) < 2:
+            continue
 
-        names = list(pax_on_flight.keys())
-        for i in range(len(names)):
-            n1 = names[i]
-            p1 = pax_on_flight[n1]
-            for j in range(i + 1, len(names)):
-                n2 = names[j]
-                p2 = pax_on_flight[n2]
+        for n1, n2 in combinations(unique_names, 2):
+            pair = (n1, n2) if n1 < n2 else (n2, n1)
+            pair_counts[pair] += 1
 
-                # Нет общих документов
-                if p1["docs"] & p2["docs"]:
-                    continue
-                # Нет общих броней (PNR)
-                if p1["bookings"] & p2["bookings"]:
-                    continue
+    print(f"    -> Обработано {total_flights} рейсов (за {time.time() - t0:.2f} сек)")
+    print(f"    -> Найдено пар, летавших вместе хотя бы раз: {len(pair_counts)}")
 
-                pair_key = (n1, n2) if n1 < n2 else (n2, n1)
-                pair_counts[pair_key] += 1
-                if len(pair_flights[pair_key]) < 10:
-                    pair_flights[pair_key].add((flight, date))
+    valid_pairs = {pair: count for pair, count in pair_counts.items() if count >= MIN_SHARED_FLIGHTS}
+    print(f"    -> Пар, летавших вместе >= {MIN_SHARED_FLIGHTS} раз: {len(valid_pairs)}\n")
 
-    print(f"[i] Уникальных пар, летавших вместе: {len(pair_counts)}")
+    if not valid_pairs:
+        print("[!] Теневых групп не найдено. Завершаем работу.")
+        return
 
-    shadow_pairs = {pair: pair_flights[pair] for pair, count in pair_counts.items() if count >= MIN_SHARED_FLIGHTS}
-    print(f"[i] Найдено теневых пар (>= {MIN_SHARED_FLIGHTS} совместных рейсов): {len(shadow_pairs)}")
+    print("[STEP 4/5] Формирование теневых групп...")
+    t0 = time.time()
 
-    adj = defaultdict(set)
-    for (n1, n2) in shadow_pairs:
-        adj[n1].add(n2)
-        adj[n2].add(n1)
+    # Строим граф соседей для быстрого поиска кандидатов
+    neighbors = defaultdict(set)
+    for p1, p2 in valid_pairs:
+        neighbors[p1].add(p2)
+        neighbors[p2].add(p1)
 
-    visited = set()
+    sorted_pairs = sorted(valid_pairs.items(), key=lambda x: (-x[1], x[0]))
+
+    grouped_people = set()
     groups = []
 
-    for node in adj:
-        if node in visited: continue
-        component = []
-        queue = [node]
-        visited.add(node)
-        while queue:
-            curr = queue.pop(0)
-            component.append(curr)
-            for neighbor in adj[curr]:
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
-        groups.append(component)
+    for idx, ((p1, p2), count) in enumerate(sorted_pairs):
+        if idx % 500 == 0:
+            print(f"    ... проверено пар: {idx}/{len(sorted_pairs)}, найдено групп: {len(groups)}", end="\r",
+                  flush=True)
 
-    group_data = []
-    for grp in groups:
-        grp_flights = set()
-        for j in range(len(grp)):
-            for k in range(j + 1, len(grp)):
-                p1, p2 = grp[j], grp[k]
-                pk = (p1, p2) if p1 < p2 else (p2, p1)
-                if pk in shadow_pairs:
-                    grp_flights |= shadow_pairs[pk]
+        if p1 in grouped_people or p2 in grouped_people:
+            continue
 
-        group_data.append({
-            "members": grp,
-            "flights": grp_flights
-        })
+        group = {p1, p2}
+        shared_flights = pax_flights[p1] & pax_flights[p2]
 
-    # Сортировка: сначала по количеству совместных рейсов, затем по размеру группы
-    group_data.sort(key=lambda x: (len(x["flights"]), len(x["members"])), reverse=True)
+        candidates = neighbors[p1] | neighbors[p2]
 
+        for cand in candidates:
+            if cand in grouped_people or cand in group:
+                continue
+
+            # Проверяем, что кандидат летал вместе с ТЕКУЩИМ составом группы
+            new_shared = shared_flights & pax_flights[cand]
+            if len(new_shared) >= MIN_SHARED_FLIGHTS:
+                group.add(cand)
+                shared_flights = new_shared  # Обновляем общие рейсы группы
+
+        groups.append((group, shared_flights))
+        grouped_people.update(group)
+
+    print(f"    -> Сформировано групп: {len(groups)} (за {time.time() - t0:.2f} сек)\n")
+
+    # Сортировка: сначала группы с наибольшим количеством совместных перелетов
+    groups.sort(key=lambda x: len(x[1]), reverse=True)
+
+    print("[STEP 5/5] Сохранение результатов...")
     # Запись в CSV
     OUT_SHADOW.parent.mkdir(parents=True, exist_ok=True)
     with OUT_SHADOW.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, delimiter=";")
         w.writerow(
-            ["Group_ID", "Size", "Shared_Flights_Count", "Passengers", "Agencies", "Bookings", "Flights", "Docs"])
+            ["Group_ID", "Size", "Shared_Flights_Count", "Passengers", "Agencies", "Bookings", "Exact_Shared_Flights",
+             "Docs"])
 
-        for i, gd in enumerate(group_data, 1):
-            grp = gd["members"]
-            grp_flights = gd["flights"]
-
+        for i, (grp, grp_flights) in enumerate(groups, 1):
             grp_agencies = set()
             grp_bookings = set()
             grp_docs = set()
             pax_names = []
+
             for p in grp:
                 grp_agencies |= pax_info[p]["agencies"]
                 grp_bookings |= pax_info[p]["bookings"]
                 grp_docs |= pax_info[p]["docs"]
                 pax_names.append(pax_info[p]["raw_name"])
 
+            flights_str = " | ".join(f"{fl.split('_')[0]} ({fl.split('_')[1]})" for fl in sorted(grp_flights))
+
             w.writerow([
                 f"SG_{i}",
                 len(grp),
                 len(grp_flights),
                 " | ".join(pax_names),
-                " | ".join(sorted(grp_agencies)),
+                " | ".join(sorted(grp_agencies)) or "N/A",
                 " | ".join(sorted(grp_bookings)),
-                " | ".join(f"{fl[0]}({fl[1]})" for fl in sorted(grp_flights)),
+                flights_str,
                 " | ".join(sorted(grp_docs))
             ])
 
-    print(f"[shadow_groups.csv] записей: {len(group_data)} -> {OUT_SHADOW}")
-    update_spies_md(group_data, pax_info, len(all_records))
+    print(f"    -> {OUT_SHADOW.name} сохранен ({len(groups)} групп).")
+    update_spies_md(groups, pax_info, len(all_records))
+    print("=" * 60)
+    print("✅ ГОТОВО!")
 
 
-def update_spies_md(group_data, pax_info, total_records):
+def update_spies_md(groups, pax_info, total_records):
     header = "## Теневые группы пассажиров (checker.py)"
     lines = [header + "\n\n"]
 
-    lines.append("Пассажиры, которые не пересекаются по документам и броням, ")
-    lines.append("но регулярно летают одними и теми же рейсами.\n\n")
+    lines.append("Пассажиры, которые регулярно летают вместе на одних и тех же рейсах ")
+    lines.append("в одни и те же даты, но не пересекаются по документам и броням.\n\n")
 
     lines.append(f"- Всего перелетов проанализировано: **{total_records}**\n")
-    lines.append(f"- Найдено теневых групп: **{len(group_data)}**\n")
+    lines.append(f"- Найдено теневых групп: **{len(groups)}**\n")
     lines.append(f"- Мин. совместных рейсов для группы: **{MIN_SHARED_FLIGHTS}**\n\n")
 
-    if not group_data:
+    if not groups:
         lines.append("_Теневых групп не найдено._\n\n")
     else:
         lines.append("### Список групп (отсортировано по кол-ву совместных рейсов)\n\n")
-        lines.append("| ID | Размер | Совместных рейсов | Пассажиры | Сайты (Агентства) |\n")
-        lines.append("|---|---|---|---|---|\n")
-        for i, gd in enumerate(group_data, 1):
-            grp = gd["members"]
-            grp_flights = gd["flights"]
-
+        lines.append("| ID | Размер | Совместных рейсов | Пассажиры | Сайты | Пересечения (Рейс + Дата) |\n")
+        lines.append("|---|---|---|---|---|---|\n")
+        for i, (grp, grp_flights) in enumerate(groups, 1):
             agencies = set()
             names = []
             for p in grp:
                 agencies |= pax_info[p]["agencies"]
                 names.append(pax_info[p]["raw_name"])
 
-            agencies_str = "<br>".join(agencies) if agencies else "N/A (билеты без агентств)"
-            lines.append(f"| SG_{i} | {len(grp)} | **{len(grp_flights)}** | {'<br>'.join(names)} | {agencies_str} |\n")
+            flights_sample = ", ".join(f"{fl.split('_')[0]} ({fl.split('_')[1]})" for fl in sorted(grp_flights)[:5])
+            if len(grp_flights) > 5: flights_sample += "..."
+
+            agencies_str = "<br>".join(agencies) if agencies else "N/A"
+
+            lines.append(
+                f"| SG_{i} | {len(grp)} | **{len(grp_flights)}** | {'<br>'.join(names)} | {agencies_str} | {flights_sample} |\n")
         lines.append("\n")
 
     new_section = "".join(lines)
@@ -386,7 +397,7 @@ def update_spies_md(group_data, pax_info, total_records):
     pattern = re.compile(re.escape(header) + r".*?(?=\n## |\Z)", re.DOTALL)
     text = pattern.sub("", text).rstrip() + "\n\n" + new_section
     OUT_SPIES.write_text(text, encoding="utf-8")
-    print(f"[SPIES.md] обновлён: {OUT_SPIES}")
+    print(f"    -> {OUT_SPIES.name} обновлён.")
 
 
 if __name__ == "__main__":
