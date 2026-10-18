@@ -65,6 +65,9 @@ yaml_to_csv: .venv/bin/pip
 #	.venv/bin/jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace $(NOTEBOOK_PATH1)
 #	.venv/bin/jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace $(NOTEBOOK_PATH2)
 
+normalize: .venv/bin/pip
+	.venv/bin/python src/normalization/normalize.py
+
 clean_raw:
 	find resources/raw/ -mindepth 1 ! -name 'README.md' -delete
 
