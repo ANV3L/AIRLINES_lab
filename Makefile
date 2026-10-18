@@ -68,6 +68,9 @@ yaml_to_csv: .venv/bin/pip
 normalize: .venv/bin/pip
 	.venv/bin/python src/normalization/normalize.py
 
+server: .venv/bin/pip
+	.venv/bin/python server/app.py
+
 clean_raw:
 	find resources/raw/ -mindepth 1 ! -name 'README.md' -delete
 
