@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parents[2]
 SRC = BASE / "resources" / "raw" / "BoardingData.csv"
-DST = BASE / "resources" / "processed" / "BoardingData_parsed.csv"
+DST = BASE / "resources" / "processed" / "temp" / "BoardingData_parsed.csv"
 
 
 
