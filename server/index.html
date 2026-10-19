@@ -334,9 +334,20 @@
 
 <script>
     const BUTTONS = [
-        { command: "download_raw_data", label: "Download raw data", secondary: true },
+        { command: "download_raw_data",       label: "Download raw data", secondary: true },
         { command: "download_processed_data", label: "Download processed data", secondary: true },
+
         { divider: true },
+
+        { command: "documents_checker",                     label: "Find irregularities in the documents" },
+        { command: "find_discrepancy_in_verification_data", label: "Find discrepancy in verification data"},
+        { command: "find_ghosts",                           label: "Find ghosts"},
+        { command: "shadow_groups_finder",                  label: "Find shadow groups"},
+        { command: "spies_finder_in_BoardingData_csv",      label: "Finder spies in BoardingData"},
+
+        { divider: true },
+
+        { command: "full_analysis",      label: "Full analysis"},
         <!-- Ниже добавлять новые кнопки -->
         { command: "Count rows in files", label: "Count rows in files" },
     ];

@@ -34,26 +34,26 @@ fetch_all: .venv/bin/pip
 
 convert_to_csv: xml_json_to_csv yaml_to_csv xlsx_to_csv tab_to_csv csv_convert
 
-csv_convert: .venv/bin/activate
+csv_convert: .venv/bin/pip
 	.venv/bin/python src/csv_parser/parse_csv.py
 
-xml_json_to_csv: .venv/bin/activate
+xml_json_to_csv: .venv/bin/pip
 	cd src/xml_and_json_parsers && \
 	cmake -S . -B build  && \
 	cmake --build build -j && \
 	./build/bin/json_parser && \
 	./build/bin/xml_parser
 
-xlsx_to_csv: .venv/bin/activate
+xlsx_to_csv: .venv/bin/pip
 	.venv/bin/python src/xlsx_parser/parse_xlsx.py --folder resources/raw/YourBoardingPassDotAero
 	mv boarding_pass_raw.csv resources/interim/YourBoardingPassDotAero/
 	mv cleaned_boarding_pass.csv resources/processed/
 
-tab_to_csv: .venv/bin/activate
+tab_to_csv: .venv/bin/pip
 	.venv/bin/python src/tab_parser/convert_tab_csv.py --input resources/raw/Sirena-export-fixed.tab
 	mv sirena_parsed.csv resources/processed
 
-yaml_to_csv: .venv/bin/activate
+yaml_to_csv: .venv/bin/pip
 	cd src/yaml_parser && \
 	cmake -S . -B build  && \
 	cmake --build build -j && \
@@ -67,16 +67,16 @@ doc_checker: .venv/bin/pip
 find_discrepancy: .venv/bin/pip
 	.venv/bin/python src/find_discrepancy_in_verification_data/scanner.py
 
-shadow_groups_finder: .venv/bin/activate
+shadow_groups_finder: .venv/bin/pip
 	.venv/bin/python src/shadow_groups_finder/checker.py
 
-find_ghosts: .venv/bin/activate
+find_ghosts: .venv/bin/pip
 	.venv/bin/python src/find_ghosts/find_ghosts.py
 
 spies_finder_in_BoardingData_csv: .venv/bin/pip
 	.venv/bin/python src/spies_finder_in_BoardingData_csv/finder.py
 
-collect_all_reports: .venv/bin/activate
+collect_all_reports: .venv/bin/pip
 	.venv/bin/python src/collect_all_reports/collector.py
 
 normalize: .venv/bin/pip

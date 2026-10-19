@@ -1,5 +1,4 @@
-from functions import count_rows_in_files
-
+from functions import *
 
 # В этом файле находится исключительно словарь с функциями
 # Контракт: 
@@ -8,6 +7,12 @@ from functions import count_rows_in_files
 
 COMMANDS = {
     "Count rows in files": count_rows_in_files,
+    "documents_checker": documents_checker,
+    "find_discrepancy_in_verification_data": find_discrepancy_in_verification_data,
+    "find_ghosts": find_ghosts,
+    "shadow_groups_finder" : shadow_groups_finder,
+    "spies_finder_in_BoardingData_csv": spies_finder_in_boarding_data_csv,
+    "full_analysis": collect_all_reports,
 }
 
 
