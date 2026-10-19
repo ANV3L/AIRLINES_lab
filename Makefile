@@ -1,4 +1,4 @@
-.PHONY: venv_up clean_raw fetch_all send_reports notify
+.PHONY: venv_up clean_raw fetch_all send_reports notify server
 
 # Находим ВСЕ файлы requirements.txt в подпапках scripts/
 ALL_REQS = $(shell find . -name "requirements.txt")
@@ -67,6 +67,10 @@ yaml_to_csv: .venv/bin/pip
 
 normalize: .venv/bin/pip
 	.venv/bin/python src/normalization/normalize.py
+
+server: .venv/bin/pip
+	(setsid xdg-open http://127.0.0.1:5000 >/dev/null 2>&1 &)
+	.venv/bin/python server/app.py
 
 clean_raw:
 	find resources/raw/ -mindepth 1 ! -name 'README.md' -delete
