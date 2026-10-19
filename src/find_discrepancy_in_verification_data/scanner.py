@@ -12,6 +12,7 @@ BASE = Path(__file__).resolve().parents[2]
 TEMP = BASE / "resources" / "processed" / "temp"
 OUT_DISCREPANCY = BASE / "resources" / "processed" / "discrepancy.csv"
 OUT_SPIES = Path(__file__).resolve().parent / "SPIES.md"
+OUT_REPORT = Path(__file__).resolve().parent / "report.md"
 
 # ---------- конфиг ----------
 GROUP_1 = {"BoardingData", "sirena", "cleaned_boarding_pass"}
@@ -261,7 +262,6 @@ def check_discrepancies(all_rows):
     for nk in sorted(all_names):
         p1, p2 = g1.get(nk), g2.get(nk)
         fio_display = (p1 and p1["fio"]) or (p2 and p2["fio"]) or " ".join(nk)
-        fio_variants = (p1["fio_set"] if p1 else set()) | (p2["fio_set"] if p2 else set())
 
         def base_record(type_name, detail):
             return {
@@ -325,9 +325,6 @@ def check_discrepancies(all_rows):
 
             # 2.5 BONUS_CARD_MISMATCH
             if p1["bonus"] and p2["bonus"] and not (p1["bonus"] & p2["bonus"]):
-                # Карты не совпали.
-                # Считаем это ошибкой (одним человеком), ТОЛЬКО если у обоих есть отчества
-                # и они совместимы. В противном случае это просто разные люди (тезки).
                 if pats1 and pats2 and any(patronymic_compatible(a, b) for a in pats1 for b in pats2):
                     records.append(base_record("BONUS_CARD_MISMATCH",
                                                f"bonus differs: G1={sorted(p1['bonus'])}, G2={sorted(p2['bonus'])}"))
@@ -448,7 +445,83 @@ def update_spies_md(records, stats, files_stats):
     print(f"[SPIES.md] обновлён: {OUT_SPIES}")
 
 
+def write_report_md(records, stats, files_stats):
+    """Генерирует краткий отчет (для VIEW) человеческим языком."""
+    suspicious_types = {
+        "BONUS_CARD_SHARED", "PATRONYMIC_MISMATCH", "PATRONYMIC_CONFLICT_G1",
+        "PATRONYMIC_CONFLICT_G2", "BONUS_CARD_MISMATCH", "XML_NAME_AMBIGUOUS",
+    }
+    suspicious = [r for r in records if r["Type"] in suspicious_types]
+    homonyms = [r for r in records if r["Type"].startswith("POSSIBLE_HOMONYM")]
+
+    lines = []
+    lines.append("### Отчет по расхождениям между GROUP_1 и GROUP_2\n")
+    lines.append(
+        "Проанализировал файлы билетов/броней и выгрузки лояльности. Ниже - краткая сводка по найденным нестыковкам.\n")
+
+    # --- БЛОК: ИСПОЛЬЗОВАННЫЕ ФАЙЛЫ ---
+    g1_files = [name for name, n in files_stats if n > 0 and name in GROUP_1]
+    g2_files = [name for name, n in files_stats if n > 0 and name in GROUP_2]
+
+    if g1_files or g2_files:
+        lines.append(f"**Данные для анализа брались из:**")
+        if g1_files:
+            lines.append(f"- Группа 1 (брони/билеты): {', '.join(f'`{f}`' for f in g1_files)}")
+        if g2_files:
+            lines.append(f"- Группа 2 (лояльность/выгрузки): {', '.join(f'`{f}`' for f in g2_files)}")
+        lines.append("")
+    else:
+        lines.append("**Данные для анализа:** файлы не найдены или пусты.\n")
+    lines.append("---\n")
+
+    # 1. Подозрительные пассажиры
+    lines.append("#### 1. Подозрительные пассажиры")
+    if suspicious:
+        lines.append(
+            f"Найдено **{len(suspicious)}** аномалий. Это случаи, когда у человека с одинаковым именем и отчеством в разных базах (или внутри одной) висят разные бонусные карты, либо одна карта используется разными людьми.")
+        for r in suspicious[:3]:
+            lines.append(f"- {r['FIO']} ({r['Type']}): {r['Detail']}.")
+    else:
+        lines.append("Подозрительных аномалий не найдено. Все бонусные карты и отчества бьются друг с другом.")
+    lines.append("")
+
+    # 2. Тезки / Однофамильцы
+    lines.append("#### 2. Однофамильцы (тезки)")
+    if homonyms:
+        lines.append(
+            f"Найдено **{len(homonyms)}** случаев. Это люди с одинаковыми ФИО, но разными отчествами или датами рождения. Они не считаются ошибкой, просто совпадение имен.")
+        for r in homonyms[:2]:
+            lines.append(f"- {r['FIO']}: {r['Detail']}.")
+    else:
+        lines.append("Тезок с конфликтом отчеств не обнаружено.")
+    lines.append("")
+
+    # 3. Отсутствия
+    lines.append("#### 3. Отсутствие данных")
+    if stats.get("mass_g2_only"):
+        lines.append(
+            f"- Связь **GROUP_1 -> XML** не проверялась, так как отсутствие массовое ({stats['g1_only']} из {stats['g1_persons']}). Базы не обязаны совпадать на 100%.")
+    else:
+        lines.append(f"- Из GROUP_1 не нашлось в XML: **{stats['g1_only']}** чел.")
+
+    if stats.get("mass_g1_only"):
+        lines.append(
+            f"- Связь **XML → GROUP_1** не проверялась, так как отсутствие массовое ({stats['g2_only']} из {stats['g2_persons']}).")
+    else:
+        lines.append(f"- Из XML не нашлось в GROUP_1: **{stats['g2_only']}** чел.")
+    lines.append("")
+
+    OUT_REPORT.write_text("\n".join(lines), encoding="utf-8")
+    print(f"[report.md] обновлён: {OUT_REPORT}")
+
+
 def main():
+    # Очищаем старые отчеты при каждом новом запуске
+    if OUT_SPIES.exists():
+        OUT_SPIES.unlink()
+    if OUT_REPORT.exists():
+        OUT_REPORT.unlink()
+
     all_rows, files_stats = [], []
     for cfg in FILES:
         rows = read_file(cfg)
@@ -468,6 +541,7 @@ def main():
         print(f"  {t}: {n}")
 
     update_spies_md(records, stats, files_stats)
+    write_report_md(records, stats, files_stats)
 
 
 if __name__ == "__main__":

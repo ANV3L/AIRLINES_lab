@@ -24,10 +24,6 @@ NOTEBOOK_PATH2 = src/pdf_parser/ETL.ipynb
 # Алиас для подготовки окружения
 venv_up: .venv/bin/pip
 
-
-
-
-
 fetch_only_processed: .venv/bin/pip
 	.venv/bin/python scripts/fetch_resources/fetch_resources.py --only_processed=True
 
@@ -36,34 +32,52 @@ fetch_all: .venv/bin/pip
 	mv resources/raw/Airlines/* resources/raw/
 	rmdir resources/raw/Airlines
 
+convert_to_csv: xml_json_to_csv yaml_to_csv xlsx_to_csv tab_to_csv csv_convert
 
-convert_to_csv: xml_json_to_csv yaml_to_csv xlsx_to_csv tab_to_csv # pdf_to_csv <-- добавить когда починят pdf_parser
+csv_convert: .venv/bin/activate
+	.venv/bin/python src/csv_parser/parse_csv.py
 
-xml_json_to_csv: .venv/bin/pip
+xml_json_to_csv: .venv/bin/activate
 	cd src/xml_and_json_parsers && \
 	cmake -S . -B build  && \
 	cmake --build build -j && \
 	./build/bin/json_parser && \
 	./build/bin/xml_parser
 
-xlsx_to_csv: .venv/bin/pip
+xlsx_to_csv: .venv/bin/activate
 	.venv/bin/python src/xlsx_parser/parse_xlsx.py --folder resources/raw/YourBoardingPassDotAero
 	mv boarding_pass_raw.csv resources/interim/YourBoardingPassDotAero/
 	mv cleaned_boarding_pass.csv resources/processed/
 
-tab_to_csv: .venv/bin/pip
+tab_to_csv: .venv/bin/activate
 	.venv/bin/python src/tab_parser/convert_tab_csv.py --input resources/raw/Sirena-export-fixed.tab
 	mv sirena_parsed.csv resources/processed
 
-yaml_to_csv: .venv/bin/pip
+yaml_to_csv: .venv/bin/activate
 	cd src/yaml_parser && \
 	cmake -S . -B build  && \
 	cmake --build build -j && \
 	./build/yaml_parser
 
-#pdf_to_csv: .venv/bin/pip # <-- пока что сломано
-#	.venv/bin/jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace $(NOTEBOOK_PATH1)
-#	.venv/bin/jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace $(NOTEBOOK_PATH2)
+
+
+doc_checker: .venv/bin/pip
+	.venv/bin/python src/documents_checker/finder.py
+
+find_discrepancy: .venv/bin/pip
+	.venv/bin/python src/find_discrepancy_in_verification_data/scanner.py
+
+shadow_groups_finder: .venv/bin/activate
+	.venv/bin/python src/shadow_groups_finder/checker.py
+
+find_ghosts: .venv/bin/activate
+	.venv/bin/python src/find_ghosts/find_ghosts.py
+
+spies_finder_in_BoardingData_csv: .venv/bin/pip
+	.venv/bin/python src/spies_finder_in_BoardingData_csv/finder.py
+
+collect_all_reports: .venv/bin/activate
+	.venv/bin/python src/collect_all_reports/collector.py
 
 normalize: .venv/bin/pip
 	.venv/bin/python src/normalization/normalize.py
@@ -76,6 +90,5 @@ clean_processed:
 
 clean_interim:
 	find resources/interim/ -mindepth 1 ! -name 'README.md' -delete
-
 
 clean_all: clean_processed clean_raw clean_interim
