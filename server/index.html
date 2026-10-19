@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScipyFounder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+    :root {
+        --bg: #0a0e1a;
+        --bg-header: #080b15;
+        --surface: #10162a;
+        --surface-top: #121930;
+        --surface-hover: #141b33;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.14);
+        --highlight: rgba(255, 255, 255, 0.045);
+
+        --text-primary: #e6e9f2;
+        --text-secondary: #9aa4bd;
+        --text-muted: #6b7690;
+
+        --accent: #4f7cff;
+        --accent-top: #628dff;
+        --accent-text: #0a0e1a;
+
+        --success: #5fd0a0;
+        --error: #f08a7e;
+
+        --radius-sm: 7px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+
+        --sidebar-width: 220px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text-primary);
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        pointer-events: none;
+        opacity: 0.035;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 180px 180px;
+    }
+
+    body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+            1200px 600px at 85% -10%,
+            rgba(79, 124, 255, 0.06),
+            transparent 60%
+        );
+    }
+
+    header.top-bar,
+    .layout {
+        position: relative;
+        z-index: 1;
+    }
+
+    header.top-bar {
+        background: linear-gradient(180deg, #0a0f1c 0%, var(--bg-header) 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 28px;
+    }
+
+    .logo {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+    .layout {
+        display: flex;
+        align-items: flex-start;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 36px 28px 80px;
+        gap: 28px;
+    }
+
+    .content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .sidebar {
+        width: var(--sidebar-width);
+        flex-shrink: 0;
+        position: sticky;
+        top: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+    }
+
+    .btn-command {
+        background: linear-gradient(180deg, var(--surface-top), var(--surface));
+        color: var(--text-primary);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+        cursor: pointer;
+        width: 100%;
+        box-shadow:
+            inset 0 1px 0 var(--highlight),
+            0 1px 2px rgba(0, 0, 0, 0.3);
+        transition: background 0.12s ease, border-color 0.12s ease,
+                    box-shadow 0.1s ease, transform 0.08s ease;
+    }
+
+    .btn-command:hover {
+        background: linear-gradient(180deg, var(--surface-hover), var(--surface-top));
+        border-color: var(--accent);
+    }
+
+    .btn-command:active {
+        transform: translateY(1px);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    .btn-command.is-active {
+        background: linear-gradient(180deg, var(--accent-top), var(--accent));
+        border-color: var(--accent);
+        color: var(--accent-text);
+        font-weight: 600;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.25),
+            0 2px 8px rgba(79, 124, 255, 0.25);
+    }
+
+    .btn-command.btn-secondary {
+        color: var(--text-secondary);
+        font-size: 12.5px;
+    }
+
+    .btn-command.btn-secondary.is-active {
+        background: linear-gradient(180deg, var(--accent-top), var(--accent));
+        color: var(--accent-text);
+    }
+
+    .status-line {
+        min-height: 18px;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    .status-line.ok .status-dot { background: var(--success); }
+    .status-line.fail .status-dot { background: var(--error); }
+    .status-line.fail { color: var(--error); }
+
+    .card {
+        background: linear-gradient(180deg, var(--surface-top), var(--surface));
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 28px 32px;
+        margin-bottom: 20px;
+        box-shadow:
+            inset 0 1px 0 var(--highlight),
+            0 1px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2.card-label {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        margin: 0 0 20px;
+    }
+
+    #report-output:empty::before {
+        content: "Нажми любую кнопку слева, чтобы сгенерировать report.md.";
+        color: var(--text-muted);
+        font-size: 13px;
+    }
+
+    #report-output h1 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0 0 4px;
+        color: var(--text-primary);
+    }
+
+    #report-output h2 {
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--text-muted);
+        margin: 28px 0 12px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    #report-output h2:first-of-type { border-top: none; padding-top: 0; }
+
+    #report-output p {
+        color: var(--text-secondary);
+        font-size: 13px;
+        margin: 0 0 12px;
+    }
+
+    #report-output em {
+        color: var(--text-muted);
+        font-style: normal;
+        font-size: 12.5px;
+    }
+
+    #report-output table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    #report-output thead th {
+        border-bottom: 1px solid var(--border-strong);
+        padding: 8px 14px;
+        text-align: left;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    #report-output tbody td {
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-primary);
+    }
+
+    #report-output tbody tr:hover { background: var(--surface-hover); }
+
+    #report-output img {
+        display: block;
+        width: 100%;
+        max-width: 640px;
+        margin: 8px auto 0;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        box-shadow: inset 0 1px 0 var(--highlight);
+    }
+
+    #report-output code {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 12.5px;
+    }
+
+    @media (max-width: 760px) {
+        .layout { flex-direction: column; }
+        .sidebar {
+            width: 100%;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .btn-command { width: auto; }
+    }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <h1 class="logo">ScipyFounder</h1>
+</header>
+
+<div class="layout">
+    <main class="content">
+        <div class="status-line" id="status-line">
+            <span class="status-dot"></span>
+            <span id="status-text"></span>
+        </div>
+
+        <section class="card">
+            <h2 class="card-label">Report</h2>
+            <div id="report-output"></div>
+        </section>
+    </main>
+
+    <aside class="sidebar" id="sidebar"></aside>
+</div>
+
+<script>
+    const BUTTONS = [
+        { command: "download_raw_data", label: "Download raw data", secondary: true },
+        { command: "download_processed_data", label: "Download processed data", secondary: true },
+        { divider: true },
+        <!-- Ниже добавлять новые кнопки -->
+        { command: "Count rows in files", label: "Count rows in files" },
+    ];
+
+    const sidebar = document.getElementById("sidebar");
+    const statusLine = document.getElementById("status-line");
+    const statusText = document.getElementById("status-text");
+    const reportOutput = document.getElementById("report-output");
+
+    function setStatus(status, name) {
+        statusLine.classList.remove("ok", "fail");
+        if (status === "0") {
+            statusLine.classList.add("ok");
+            statusText.textContent = `${name}: готово`;
+        } else if (status === "1") {
+            statusLine.classList.add("fail");
+            statusText.textContent = `${name}: ошибка выполнения`;
+        } else {
+            statusText.textContent = status;
+        }
+    }
+
+    async function refreshReport() {
+        try {
+            const res = await fetch(`/report.md?t=${Date.now()}`);
+            const text = await res.text();
+
+            if (window.marked) {
+                reportOutput.innerHTML = marked.parse(text);
+            } else {
+                const pre = document.createElement("pre");
+                pre.textContent = text;
+                reportOutput.innerHTML = "";
+                reportOutput.appendChild(pre);
+            }
+        } catch (err) {
+            console.error("Не удалось загрузить report.md", err);
+        }
+    }
+
+    async function runCommand(name, btn) {
+        statusText.textContent = `Выполняется: ${name} ...`;
+        statusLine.classList.remove("ok", "fail");
+        document.querySelectorAll(".btn-command").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+
+        try {
+            const res = await fetch("/api/command", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ command: name }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                statusLine.classList.add("fail");
+                statusText.textContent = data.error || "Ошибка запроса";
+                return;
+            }
+
+            setStatus(data.status, name);
+            await refreshReport();
+        } catch (err) {
+            statusLine.classList.add("fail");
+            statusText.textContent = `Ошибка сети: ${err}`;
+        }
+    }
+
+    BUTTONS.forEach((item) => {
+        if (item.divider) {
+            const div = document.createElement("div");
+            div.className = "sidebar-divider";
+            sidebar.appendChild(div);
+            return;
+        }
+
+        const btn = document.createElement("button");
+        btn.className = "btn-command" + (item.secondary ? " btn-secondary" : "");
+        btn.textContent = item.label;
+        btn.addEventListener("click", () => runCommand(item.command, btn));
+        sidebar.appendChild(btn);
+    });
+
+    refreshReport();
+</script>
+
+</body>
+</html>

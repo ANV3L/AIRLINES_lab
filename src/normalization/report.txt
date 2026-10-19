@@ -1,0 +1,282 @@
+================================================================================
+ОТЧЁТ О НОРМАЛИЗАЦИИ АВИАЦИОННЫХ CSV-ФАЙЛОВ
+================================================================================
+Скрипт:        normalize_aviation.py
+Папка входа:   ./
+Папка выхода:  ./normalized/
+Формат выхода: CSV, разделитель '|', кодировка UTF-8, index не пишется
+Режим:         параллельная обработка 7 файлов (ProcessPoolExecutor)
+Объединений (merge) между файлами НЕ выполняется — каждый файл
+нормализуется независимо, имена выходных файлов совпадают с входными.
+
+================================================================================
+1. ОБЩИЕ ПРЕОБРАЗОВАНИЯ (применяются ко всем файлам)
+================================================================================
+- Чтение CSV с явным разделителем '|' (у первого файла на входе тоже '|').
+- Приведение типов: даты -> YYYY-MM-DD, время -> HH:MM, числа -> numeric.
+- Обрезка пробелов (trim) во всех текстовых полях.
+- Пустые строки -> None (в CSV остаётся пустое значение).
+- Удаление полных дублей строк (drop_duplicates).
+- UPPERCASE для всех текстовых полей: ФИО, города, страны, регионы,
+  аэропорты, классы, коды, статусы, fare_basis и т.д.
+- Разделение склеенных полей на составные колонки.
+- Парсинг сквозных кодов: PNR, e-ticket, номер рейса, FF-карта.
+- Транслитерация кириллицы по заданному правилу.
+- Латинская нормализация имён (см. раздел 3).
+- Разбиение слитных ФИО "ФАМИЛИЯ ИМЯ ОТЧЕСТВО" на 3 колонки
+  (passenger_last, passenger_first, passenger_middle).
+
+================================================================================
+2. ТРАНСЛИТЕРАЦИЯ КИРИЛЛИЦЫ
+================================================================================
+Применяется к любому текстовому полю, где обнаружена кириллица
+(регулярное выражение [А-Яа-яЁё]), в том числе к ФИО.
+
+Таблица соответствий:
+  А -> A     Б -> B     В -> V     Г -> G     Д -> D
+  Е -> E     Ё -> E     Ж -> ZH    З -> Z     И -> I
+  Й -> I     К -> K     Л -> L     М -> M     Н -> N
+  О -> O     П -> P     Р -> R     С -> S     Т -> T
+  У -> U     Ф -> F     Х -> KH    Ц -> TC    Ч -> CH
+  Ш -> SH    Щ -> SHCH  Ъ -> (пусто)         Ы -> Y
+  Ь -> (пусто)         Э -> E     Ю -> IU    Я -> IA
+
+Регистр сохраняется (заглавная -> заглавная, строчная -> строчная),
+после транслитерации строка приводится к верхнему регистру.
+
+================================================================================
+3. ЛАТИНСКАЯ НОРМАЛИЗАЦИЯ ИМЁН (latin_name_rules)
+================================================================================
+Применяется ПОСЛЕ транслитерации и ПОСЛЕ upper. Порядок замен важен:
+
+  1) Удаление апострофов          '            -> (пусто)
+  2) YA -> IA      NATALYA -> NATALIA
+  3) IY -> II      YURIY   -> YURII
+  4) EY -> EI      SERGEY -> SERGEI
+  5) YU -> IU      YULIA  -> IULIA
+  6) AY -> AI
+  7) TS -> TC      TSAREV -> TCAREV
+  8) X  -> KS      ALEXEY -> ALEKSEI
+
+Примеры итогового результата:
+  "ОЗЕРОВ ИЛЬДАР ДАНИИЛОВИЧ" -> OZEROV / ILDAR / DANIILOVICH
+  "НАТАЛЬЯ ПЕТРОВНА"         -> NATALIA / PETROVNA
+  "ЮРИЙ ВАЛЕРЬЕВИЧ"          -> IURII / VALEREVICH
+  "СЕРГЕЙ АЛЕКСЕЕВИЧ"        -> SERGEI / ALEKSEEVICH
+  "NATAL'YA SMIRNOVA"        -> NATALIA / SMIRNOVA
+  "ALEXEY MAXIMOV"           -> ALEKSEI / MAKSIMOV
+  "YURIY SERGEYEV"           -> IURII / SERGEIEV
+
+ВНИМАНИЕ: правило X -> KS срабатывает и на не-русских именах
+(MAX -> MAKS, FELIX -> FELIKS). При необходимости — белый список
+исключений или отключение правила для конкретных источников.
+
+================================================================================
+4. ЧТО СДЕЛАНО С КАЖДЫМ ФАЙЛОМ
+================================================================================
+
+--------------------------------------------------------------------------------
+4.1. BoardingPass_parsed.csv  (разделитель на входе '|')
+--------------------------------------------------------------------------------
+Источник: данные о пассажире/сегменте из посадочных документов.
+Grain: одна строка = пассажир на сегмент.
+
+Что сделано:
+- Удалена возможная дублированная строка-заголовок внутри данных
+  (там, где PassengerFirstName == "PASSENGERFIRSTNAME").
+- PassengerDocument ("2879 096860") -> doc_series + doc_number.
+- PassengerBirthDate "DD/MM/YYYY" -> birth_date "YYYY-MM-DD".
+- PassengerSex "Male"/"Female" -> sex "M"/"F".
+- FlightNumber "SU1369" -> airline_code + flight_num.
+- BookingCode -> pnr (upper).
+- TicketNumber -> ticket_number (только цифры, строка).
+- FlightDate -> flight_date "YYYY-MM-DD".
+- FlightTime -> dep_time "HH:MM".
+- CodeShare -> codeshare (upper).
+- Destination -> arr_city (upper).
+- Baggage -> baggage_code (upper, это код/статус, не вес).
+- ФИО (латиница) -> через norm_name + latin_name_rules.
+  Колонки: passenger_last / passenger_first / passenger_middle.
+
+Итоговые колонки (порядок):
+  pnr, ticket_number, passenger_last, passenger_first, passenger_middle,
+  sex, birth_date, doc_series, doc_number, baggage_code, flight_date,
+  dep_time, airline_code, flight_num, codeshare, arr_city
+
+--------------------------------------------------------------------------------
+4.2. cleaned_boarding_pass.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: очищенные данные посадочных талонов/регистрации (рус. заголовки).
+Grain: одна строка = пассажир на сегмент.
+
+Что сделано:
+- Все русские колонки переименованы в канонические англ. имена.
+- Очередь_регистрации -> checkin_queue (numeric).
+- Класс_обслуживания -> booking_class (upper).
+- Номер_рейса -> airline_code + flight_num.
+- Город_вылета / Город_прилета -> dep_city / arr_city (upper).
+- Код_аэропорта_вылета / _прилета -> dep_airport / arr_airport (upper).
+- Дата_вылета -> flight_date; Время_вылета -> dep_time.
+- PNR_бронь -> pnr (upper).
+- Номер_эл_билета -> ticket_number (только цифры).
+- Бонусная_карта ("FB 171388778") -> ff_airline + ff_number.
+- Фамилия / Имя / Отчество -> passenger_last / passenger_first /
+  passenger_middle через norm_name (транслит, если кириллица;
+  латинские имена очищаются latin_name_rules).
+
+Итоговые колонки:
+  checkin_queue, booking_class, pnr, ticket_number, ff_airline, ff_number,
+  passenger_last, passenger_first, passenger_middle,
+  dep_city, arr_city, dep_airport, arr_airport,
+  flight_date, dep_time, airline_code, flight_num
+
+--------------------------------------------------------------------------------
+4.3. json_parsed.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: расписание/сегменты рейсов, распарсенные из JSON.
+Grain: одна строка = рейс/сегмент на дату. Пассажира/PNR тут нет.
+
+Что сделано:
+- Date -> flight_date "YYYY-MM-DD".
+- Codeshare "true"/"false" -> bool.
+- Flight "DL3377" -> airline_code + flight_num.
+- DepCity "Boston MA" -> dep_city "BOSTON" + dep_region "MA".
+- ArrCity "Green Bay WI" -> arr_city "GREEN BAY" + arr_region "WI".
+  (Правило: если последний токен — 2 латинские буквы, это регион/штат.)
+- DepAirport / ArrAirport -> upper.
+- DepCountry / ArrCountry -> upper ("United States of" -> "UNITED STATES OF").
+
+Итоговые колонки:
+  flight_date, codeshare, airline_code, flight_num,
+  dep_city, dep_region, dep_airport, dep_country,
+  arr_city, arr_region, arr_airport, arr_country
+
+--------------------------------------------------------------------------------
+4.4. sirena_parsed.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: выгрузка из GDS «Сирена». Самый «грязный» файл.
+Grain: одна строка = пассажир на сегмент.
+
+Что сделано:
+- PaxName "ФАМИЛИЯ ИМЯ ОТЧЕСТВО" -> 3 колонки:
+  passenger_last / passenger_first / passenger_middle,
+  с транслитерацией кириллицы и latin_name_rules.
+- PaxBirthDate -> birth_date "YYYY-MM-DD" (пустое остаётся пустым).
+- DepartDate / ArrivalDate -> flight_date / arr_date "YYYY-MM-DD".
+- DepartTime / ArrivalTime -> dep_time / arr_time "HH:MM".
+- FlightCode "SU1306NO" -> airline_code "SU" + flight_num "1306"
+  + flight_suffix "NO" (регулярка ^([A-Z0-9]{2})(\d+)([A-Z]*)$).
+- ShFrom / Dest -> dep_airport / arr_airport (upper).
+- Code -> pnr (upper).
+- e-Ticket "7360415302044672  9375" -> ticket_number + ticket_coupon
+  (split по пробелам; ticket_number — только цифры).
+- TravelDoc "053270 N/A" -> doc_series + doc_number (удаляется "N/A").
+- Seat -> seat (upper).
+- Meal -> meal (upper, код IATA: KSML, VGML и т.п.).
+- TrvCls -> booking_class (upper).
+- Fare -> fare_basis (upper; это fare basis, не цена).
+- Baggage -> baggage_code (upper; это код, не вес).
+- PaxAdditionalInfo "FF#SU 38116280" -> ff_airline "SU" + ff_number
+  "38116280" (регулярка FF#<airline><digits>).
+- AgentInfo -> agent_info (upper).
+
+Итоговые колонки:
+  pnr, ticket_number, ticket_coupon,
+  passenger_last, passenger_first, passenger_middle, birth_date,
+  doc_series, doc_number,
+  flight_date, dep_time, arr_date, arr_time,
+  dep_airport, arr_airport, airline_code, flight_num, flight_suffix,
+  seat, meal, booking_class, fare_basis, baggage_code,
+  ff_airline, ff_number, agent_info
+
+--------------------------------------------------------------------------------
+4.5. Skyteam_Timetable.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: расписание SkyTeam (НЕ факты перелётов: нет дат, есть период
+действия + дни недели). Grain: рейс в периоде расписания.
+
+Что сделано:
+- VALIDITY "01 Nov - 31 Jan" -> validity_raw + 4 числовых поля:
+  valid_from_day, valid_from_month, valid_to_day, valid_to_month.
+  (Год не восстанавливается — при необходимости берётся из сезона.)
+- DAYS "1234567" -> days_raw (upper, строка цифр 1..7).
+- DEP_TIME / ARR_TIME -> dep_time / arr_time "HH:MM".
+- FLIGHT "KL1328" -> airline_code + flight_num.
+- AIRCRAFT -> aircraft (upper IATA-код).
+- TRAVEL_TIME "1H25M" -> duration_min (число минут, здесь 85).
+- FROM_CITY "Aalborg, Denmark" -> dep_city "AALBORG" + dep_country "DENMARK".
+- TO_CITY   "Amsterdam , Netherlands" -> arr_city "AMSTERDAM"
+  + arr_country "NETHERLANDS" (лишний пробел перед запятой снимается).
+- FROM_CODE / TO_CODE -> dep_airport / arr_airport (upper).
+- OPERATED_BY -> operated_by (upper).
+
+Итоговые колонки:
+  validity_raw, days_raw, dep_time, arr_time, airline_code, flight_num,
+  aircraft, duration_min,
+  dep_city, dep_country, dep_airport,
+  arr_city, arr_country, arr_airport,
+  operated_by,
+  valid_from_day, valid_from_month, valid_to_day, valid_to_month
+
+--------------------------------------------------------------------------------
+4.6. xml_parsed.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: история перелётов / лояльность, распарсено из XML.
+Grain: строка участника бонусной программы на рейс.
+
+Что сделано:
+- UserId -> user_id (строка, ведущие нули не теряются).
+- FirstName / LastName -> passenger_first / passenger_last
+  через norm_name (транслит, если кириллица + latin_name_rules).
+- CardNumber "FB 171388778" -> ff_airline "FB" + ff_number "171388778".
+- BonusProgram -> bonus_program (upper).
+- Code "KE827" -> airline_code + flight_num.
+- Date -> flight_date "YYYY-MM-DD".
+- Departure -> dep_airport (upper; "rea" -> "REA").
+- Arrival -> arr_airport (upper).
+- Fare -> fare_basis (upper).
+
+Итоговые колонки:
+  user_id, passenger_first, passenger_last,
+  ff_airline, ff_number, bonus_program,
+  airline_code, flight_num, flight_date,
+  dep_airport, arr_airport, fare_basis
+
+--------------------------------------------------------------------------------
+4.7. yaml_parsed.csv  (разделитель '|')
+--------------------------------------------------------------------------------
+Источник: статусы рейсов + FF-данные, распарсено из YAML.
+Grain: рейс на дату + FF-карта.
+
+Что сделано:
+- Date -> flight_date "YYYY-MM-DD".
+- Flight "AF1145" -> airline_code + flight_num.
+- From / To -> dep_airport / arr_airport (upper).
+- Status -> status (upper; LANDED, CANCELLED, DIVERTED, ...).
+- FF_Airline -> ff_airline (upper).
+- FF_Number -> ff_number (строка, верхний регистр).
+- Class -> booking_class (upper).
+- Fare -> fare_basis (upper).
+
+Итоговые колонки:
+  flight_date, airline_code, flight_num,
+  dep_airport, arr_airport, status,
+  ff_airline, ff_number, booking_class, fare_basis
+
+================================================================================
+5. СТРУКТУРА ВЫХОДНЫХ ФАЙЛОВ
+================================================================================
+Папка normalized/ содержит 7 файлов с теми же именами, что и на входе:
+
+  normalized/BoardingPass_parsed.csv
+  normalized/cleaned_boarding_pass.csv
+  normalized/json_parsed.csv
+  normalized/sirena_parsed.csv
+  normalized/Skyteam_Timetable.csv
+  normalized/xml_parsed.csv
+  normalized/yaml_parsed.csv
+
+Разделитель '|', UTF-8, без index. Колонки — канонические английские
+имена, состав полей — см. раздел 4.
+
+Исходные файлы не перезаписываются.
