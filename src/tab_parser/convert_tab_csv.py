@@ -22,8 +22,8 @@ colspecs = [
     (172, 184), # TravelDoc
     (184, 190), # Seat
     (190, 196), # Meal
-    (196, 202), # TrvCls
-    (202, 214), # Fare
+    (196, 199), # TravelCls
+    (199, 214), # Fare
     (214, 226), # Baggage
     (226, 256), # PaxAdditionalInfo
     (256, 316), # AgentInfo
