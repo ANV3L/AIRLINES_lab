@@ -488,7 +488,17 @@ def write_report_md(records, files_stats, artefacts):
         lines.append("Странных годов не обнаружено. Все паспорта выданы в логичном возрасте.")
     lines.append("")
 
-
+    # 4. Артефакты
+    lines.append("#### 3. Паспорт выдан раньше рождения")
+    if artefacts:
+        lines.append(
+            f"Обнаружено **{len(artefacts)}** артефактов (паспорт выдан до того, как человек родился). Cкорее всего, ошибка выгрузки или сдвиг дат. В основном это касается пассажиров 2000 года рождения с паспортами серии 1900.")
+        for a in artefacts[:3]:
+            lines.append(
+                f"- {a['FIO']} (ДР: {a['BirthDate']}): паспорт `{a['Document']}`, год выдачи {a['IssueYear']} (разница {a['Delta']} лет).")
+    else:
+        lines.append("Физически невозможных паспортов (выданных до рождения) не найдено.")
+    lines.append("")
 
     OUT_REPORT.write_text("\n".join(lines), encoding="utf-8")
     print(f"[report.md] обновлён: {OUT_REPORT}")
