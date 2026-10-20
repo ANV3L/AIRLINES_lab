@@ -7,7 +7,7 @@ from pathlib import Path
 
 # ---------- пути ----------
 BASE = Path(__file__).resolve().parents[2]
-TEMP = BASE / "resources" / "processed" / "temp"
+TEMP = BASE / "resources" / "processed"
 OUT_SHADOW = BASE / "resources" / "processed" / "shadow_groups.csv"
 OUT_SPIES = Path(__file__).resolve().parent / "SPIES.md"
 OUT_REPORT = Path(__file__).resolve().parent / "report.md"

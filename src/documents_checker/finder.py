@@ -21,7 +21,7 @@ from pathlib import Path
 # ---------- пути ----------
 
 BASE = Path(__file__).resolve().parents[2]
-TEMP = BASE / "resources" / "processed" / "temp"
+TEMP = BASE / "resources" / "processed"
 
 OUT_DIFF     = BASE / "resources" / "processed" / "changed_documents.csv"
 OUT_ARTEFACT = BASE / "resources" / "processed" / "artefacts.csv"
