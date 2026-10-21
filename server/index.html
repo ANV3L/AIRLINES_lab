@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScipyFounder</title>
+<title>SpiesFounder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -695,16 +695,17 @@
 
     #report-output img {
         display: block;
-        max-width: min(640px, 100%);
+        max-width: min(720px, 100%);
         height: auto;
-        margin: 12px auto 0;
+        margin: 14px auto 0;
         border-radius: var(--radius-md);
         border: 1px solid var(--border);
         box-shadow: inset 0 1px 0 var(--highlight);
         transition:
             transform 0.35s var(--ease),
             box-shadow 0.35s var(--ease),
-            border-color 0.4s var(--ease);
+            border-color 0.4s var(--ease),
+            opacity 0.3s var(--ease);
     }
 
     #report-output img:hover {
@@ -712,6 +713,23 @@
         box-shadow:
             inset 0 1px 0 var(--highlight),
             0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* битая картинка — подсвечиваем сразу, чтобы было видно */
+    #report-output img.broken-image {
+        border: 1px dashed var(--error);
+        background: var(--bg-deep);
+        min-height: 80px;
+        width: 100%;
+        max-width: 400px;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    #report-output img.broken-image:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: var(--error);
     }
 
     #report-output code {
@@ -847,7 +865,7 @@
                 <ellipse cx="12" cy="12" rx="10" ry="4.4" stroke="currentColor" stroke-width="1.4" transform="rotate(-60 12 12)"/>
             </svg>
         </div>
-        <h1 class="logo">ScipyFounder</h1>
+        <h1 class="logo">SpiesFounder</h1>
     </div>
     <button id="theme-toggle" class="theme-toggle" type="button"
             aria-label="Переключить тему" title="Переключить тему">
@@ -901,6 +919,13 @@
         <path d="M10 12h4"/>
     </svg>`;
 
+    const ICON_IMG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/>
+    </svg>`;
+
     const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3v12M6 11l6 6 6-6M5 21h14"/>
@@ -909,94 +934,84 @@
     function iconFor(kind) {
         if (kind === "csv") return ICON_CSV;
         if (kind === "zip") return ICON_ZIP;
+        if (kind === "img") return ICON_IMG;
         if (kind === "download") return ICON_DOWNLOAD;
         return ICON_MD;
     }
 
     /* ─── Конфиг кнопок ──────────────────────────────────────────
      *
-     * У каждой кнопки можно указать опциональный массив `downloads`:
-     *   downloads: [
-     *     { label: "Отчёт .md",  url: "/report.md",                 icon: "md",   filename: "report.md" },
-     *     { label: "Данные .csv", url: "/api/files/documents.csv", icon: "csv",  filename: "documents.csv" },
-     *   ]
-     *
-     * Если `downloads` не указан — подставляется DEFAULT_DOWNLOADS (только report.md).
-     * Иконки, которые появятся ПОСЛЕ успешного выполнения команды.
+     * downloads — массив иконок скачивания (появятся после успешной команды).
      * ───────────────────────────────────────────────────────────── */
     const DEFAULT_DOWNLOADS = [
         { label: "Отчёт .md", url: "/report.md", icon: "md", filename: "report.md" },
     ];
 
     const BUTTONS = [
-      //  { command: "download_raw_data",       label: "Download raw data", secondary: true },
-      //  { command: "download_processed_data", label: "Download processed data", secondary: true },
-
-       // { divider: true },
-
         {
             command: "documents_checker",
             label: "Find irregularities in the documents",
             downloads: [
-                { label: "Artefacts .csv", url: "/api/files/artefacts.csv",          icon: "csv", filename: "artefacts.csv" },
+                { label: "Artefacts .csv", url: "/api/files/artefacts.csv", icon: "csv", filename: "artefacts.csv" },
             ]
         },
         {
             command: "find_discrepancy_in_verification_data",
             label: "Find discrepancy in verification data",
             downloads: [
-                { label: "Discrepancy .csv", url: "/api/files/discrepancy.csv",          icon: "csv", filename: "discrepancy.csv" },
+                { label: "Discrepancy .csv", url: "/api/files/discrepancy.csv", icon: "csv", filename: "discrepancy.csv" },
             ]
         },
         {
             command: "find_ghosts",
             label: "Find ghosts",
             downloads: [
-                { label: "Ghosts .csv", url: "/api/files/ghosts.csv",          icon: "csv", filename: "ghosts.csv" },
+                { label: "Ghosts .csv", url: "/api/files/ghosts.csv", icon: "csv", filename: "ghosts.csv" },
             ],
         },
         {
             command: "shadow_groups_finder",
             label: "Find shadow groups",
             downloads: [
-                { label: "Отчёт .md",     url: "/api/files/shadow_groups.md",                            icon: "md",  filename: "shadow_groups.md" },
-                { label: "Группы .csv",   url: "/api/files/shadow_groups.csv",          icon: "csv", filename: "shadow_groups.csv" },
+                { label: "Отчёт .md",   url: "/api/files/shadow_groups.md",  icon: "md",  filename: "shadow_groups.md" },
+                { label: "Группы .csv", url: "/api/files/shadow_groups.csv", icon: "csv", filename: "shadow_groups.csv" },
             ],
         },
         {
             command: "spies_finder_in_BoardingData_csv",
             label: "Finder spies in BoardingData",
             downloads: [
-                { label: "Отчёт .md", url: "/report.md", icon: "md",  filename: "spies.md" },
-                { label: "Bad documents .csv", url: "/api/files/bad_document.csv",          icon: "csv", filename: "bad_document.csv" },
+                { label: "Отчёт .md",          url: "/report.md",                  icon: "md",  filename: "spies.md" },
+                { label: "Bad documents .csv", url: "/api/files/bad_document.csv", icon: "csv", filename: "bad_document.csv" },
             ]
         },
 
         { divider: true },
+
         {
-          command: "static_analysis",
-          label: "Static analysis",
+            command: "static_analysis",
+            label: "Static analysis",
             downloads: [
-                { label: "Chart age",  url: "/api/files/chart_age.svg",                 icon: "md",  filename: "chart_age.svg" },
-                { label: "Chart arrivals",  url: "/api/files/chart_arrivals.svg",                 icon: "md",  filename: "chart_arrivals.svg" },
-                { label: "Chart departures",  url: "/api/files/chart_departures.svg",                 icon: "md",  filename: "chart_departures.svg" },
+                { label: "Chart age",        url: "/api/files/chart_age.svg",        icon: "img", filename: "chart_age.svg" },
+                { label: "Chart arrivals",   url: "/api/files/chart_arrivals.svg",   icon: "img", filename: "chart_arrivals.svg" },
+                { label: "Chart departures", url: "/api/files/chart_departures.svg", icon: "img", filename: "chart_departures.svg" },
             ]
         },
         {
             command: "full_analysis",
             label: "Full analysis",
             downloads: [
-                { label: "Полный отчёт .md",  url: "/report.md",                 icon: "md",  filename: "full_report.md" },
+                { label: "Полный отчёт .md", url: "/report.md", icon: "md", filename: "full_report.md" },
             ],
         },
-        // Ниже добавлять новые кнопки
-        {
-            command: "Count rows in files",
-            label: "Count rows in files",
-            downloads: [
-                { label: "Отчёт .md", url: "/report.md", icon: "md", filename: "count_rows.md" },
-            ],
-        },
+       // // Ниже добавлять новые кнопки
+        //{
+       //    command: "Count rows in files",
+       //    label: "Count rows in files",
+       //    downloads: [
+       //        { label: "Отчёт .md", url: "/report.md", icon: "md", filename: "count_rows.md" },
+       //    ],
+       //},
     ];
 
     const sidebar = document.getElementById("sidebar");
@@ -1029,6 +1044,38 @@
         }
     }
 
+    /* ─── Починка путей к картинкам из report.md ───────────────────
+     * В markdown могут быть относительные пути (`chart_age.svg`,
+     * `./plots/foo.png`, `../src/static_an/bar.svg` и т.п.).
+     * Браузер резолвит их относительно `/`, что даёт 404.
+     * Здесь мы приводим все не-абсолютные пути к /static_an/<basename>,
+     * а внешние (http://, data:, //) не трогаем.
+     * ──────────────────────────────────────────────────────────── */
+    function fixImagePaths() {
+        reportOutput.querySelectorAll("img").forEach(img => {
+            const raw = img.getAttribute("src") || "";
+            if (!raw) return;
+
+            // внешние и уже готовые — не трогаем
+            if (/^(https?:|\/\/|data:|blob:)/i.test(raw)) return;
+            if (raw.startsWith("/static_an/")) return;
+
+            // берём basename без query/hash, унифицируем слеши
+            const cleaned = raw.replace(/\\/g, "/").split(/[?#]/)[0];
+            const basename = cleaned.split("/").pop();
+            if (!basename) return;
+
+            img.src = `/static_an/${basename}`;
+
+            // если файл не найден — подсветим
+            img.addEventListener("error", () => {
+                img.classList.add("broken-image");
+                if (!img.alt) img.alt = `[not found: ${basename}]`;
+                else img.alt = `[not found: ${basename}] ${img.alt}`;
+            }, { once: true });
+        });
+    }
+
     async function refreshReport() {
         try {
             const res = await fetch(`/report.md?t=${Date.now()}`);
@@ -1036,6 +1083,7 @@
 
             if (window.marked) {
                 reportOutput.innerHTML = marked.parse(text);
+                fixImagePaths();
             } else {
                 const pre = document.createElement("pre");
                 pre.textContent = text;

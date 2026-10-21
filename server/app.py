@@ -87,5 +87,15 @@ def get_file(filename):
         download_name=filename,   # браузер сохранит под URL-именем
     )
 
+STATIC_AN_DIR = ROOT_DIR / "src/static_an"
+
+@app.route("/static_an/<path:filename>")
+def get_static_an_file(filename):
+    if not (STATIC_AN_DIR / filename).exists():
+        abort(404)
+    response = send_from_directory(STATIC_AN_DIR, filename)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
