@@ -12,7 +12,7 @@ python3 app.py
 
 ## index.html
 
-На 336 строке добавлять новые кнопки в BUTTONS
+На 931 строке добавлять новые кнопки в BUTTONS
 ```
     const BUTTONS = [
         { command: "download_raw_data", label: "Download raw data", secondary: true },

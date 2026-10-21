@@ -29,12 +29,12 @@
 - **GOLOVINA OLESIA | MASLENNIKOV ROMAN** — bonus card FB 139888197 used by 2 distinct names
 
 **4. ✈️ Теневые группы (летают вместе без общих броней)**
-- **Группа:** ROZANOVA ESENIA IGOREVNA, ROZANOVA ESENIA VIACHESLAVOVNA — 10 совместных рейсов.
-- **Группа:** AVDIVA KIRA L, AVDIVA KIRA M — 8 совместных рейсов.
-- **Группа:** KOSTIN SVIATOGOR VITALEVICH, KOSTIN SVIATOGOR MARSELEVICH — 8 совместных рейсов.
-- **Группа:** KUKUSHKIN ILDAR NAZAROVICH, KUKUSHKIN ILDAR ARSENEVICH — 8 совместных рейсов.
-- **Группа:** GORELOVA IANA KONSTANTINOVNA, GORELOVA IANA NIKOLAEVNA — 7 совместных рейсов.
-  _...и еще 2275 случаев в этой категории._
+- **Группа:** AGAFONOV SVIATOGOR D, DANILOV TIHON N — 2 совместных рейсов.
+- **Группа:** KONOVALOVA VALERIA, ANANEVA MELANIA M — 2 совместных рейсов.
+- **Группа:** TUMANOV EDUARD A, ANOHINA DARIA A — 2 совместных рейсов.
+- **Группа:** ANOHINA ELVIRA M, ZIKOVA VITALINA G — 2 совместных рейсов.
+- **Группа:** AVDIVA LIDIA A, KALININ ADEL A — 2 совместных рейсов.
+  _...и еще 86 случаев в этой категории._
 
 **5. 👻 Призраки (частые перелеты без публичных профилей)**
 - **ID `DT 52115273`** — 24 рейсов (из них бизнесом: 3).
@@ -50,7 +50,7 @@
 - **DAVYDOV ARTEMII AIDAROVICH** — паспорт `0900 135827` (год выдачи: 1900, дельта: -100 лет).
 - **OLEINIKOVA IULIANA A.** — паспорт `6100 360298` (год выдачи: 1900, дельта: -100 лет).
 - **AFANASEV ZAKHAR EVGENEVICH** — паспорт `6500 832266` (год выдачи: 1900, дельта: -100 лет).
-  _...и еще 127222 случаев в этой категории._
+  _...и еще 108389 случаев в этой категории._
 
 ---
 

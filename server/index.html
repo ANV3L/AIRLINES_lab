@@ -1,44 +1,134 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScipyFounder</title>
+<title>SpiesFounder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem("theme");
+        var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        document.documentElement.setAttribute(
+            "data-theme",
+            stored || (prefersLight ? "light" : "dark")
+        );
+    } catch (_) {}
+})();
+</script>
 <style>
     :root {
-        --bg: #0a0e1a;
-        --bg-header: #080b15;
-        --surface: #10162a;
-        --surface-top: #121930;
-        --surface-hover: #141b33;
-        --border: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(255, 255, 255, 0.14);
-        --highlight: rgba(255, 255, 255, 0.045);
+        color-scheme: dark;
 
-        --text-primary: #e6e9f2;
+        --bg: #08090f;
+        --bg-deep: #05060a;
+        --surface: #0f1424;
+        --surface-top: #131a30;
+        --surface-hover: #18203c;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.12);
+        --highlight: rgba(255, 255, 255, 0.05);
+
+        --text-primary: #e8ecf5;
         --text-secondary: #9aa4bd;
         --text-muted: #6b7690;
+        --text-dim: #4a5370;
 
         --accent: #4f7cff;
-        --accent-top: #628dff;
-        --accent-text: #0a0e1a;
+        --accent-top: #6d94ff;
+        --accent-soft: rgba(79, 124, 255, 0.15);
+        --accent-glow: rgba(79, 124, 255, 0.4);
+        --accent-text: #ffffff;
 
         --success: #5fd0a0;
+        --success-glow: rgba(95, 208, 160, 0.45);
         --error: #f08a7e;
+        --error-glow: rgba(240, 138, 126, 0.45);
 
-        --radius-sm: 7px;
-        --radius-md: 10px;
-        --radius-lg: 14px;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --sidebar-width: 240px;
 
-        --sidebar-width: 220px;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        --header-bg: rgba(8, 11, 21, 0.72);
+        --scrollbar-thumb: rgba(255, 255, 255, 0.07);
+        --scrollbar-thumb-hover: rgba(255, 255, 255, 0.16);
+        --noise-opacity: 0.04;
+        --code-color: #d9e2ff;
+        --card-shadow:
+            inset 0 1px 0 var(--highlight),
+            0 1px 3px rgba(0, 0, 0, 0.3),
+            0 20px 60px -20px rgba(0, 0, 0, 0.4);
+        --btn-shadow:
+            inset 0 1px 0 var(--highlight),
+            0 1px 2px rgba(0, 0, 0, 0.3);
+        --btn-shadow-hover:
+            inset 0 1px 0 var(--highlight),
+            0 4px 14px rgba(0, 0, 0, 0.35),
+            0 0 0 1px rgba(79, 124, 255, 0.08);
+        --logo-grad-1: #ffffff;
+        --logo-grad-2: #b8c5e0;
     }
 
-    * { box-sizing: border-box; }
+    html[data-theme="light"] {
+        color-scheme: light;
 
+        --bg: #f3f6fc;
+        --bg-deep: #e6ebf5;
+        --surface: #ffffff;
+        --surface-top: #f9fafd;
+        --surface-hover: #eef2fa;
+        --border: rgba(15, 23, 42, 0.08);
+        --border-strong: rgba(15, 23, 42, 0.14);
+        --highlight: rgba(255, 255, 255, 0.9);
+
+        --text-primary: #141a2b;
+        --text-secondary: #4b5573;
+        --text-muted: #6b7690;
+        --text-dim: #a1aabf;
+
+        --accent: #3b6eff;
+        --accent-top: #5a85ff;
+        --accent-soft: rgba(59, 110, 255, 0.1);
+        --accent-glow: rgba(59, 110, 255, 0.35);
+        --accent-text: #ffffff;
+
+        --success: #16a34a;
+        --success-glow: rgba(22, 163, 74, 0.3);
+        --error: #dc2626;
+        --error-glow: rgba(220, 38, 38, 0.3);
+
+        --header-bg: rgba(243, 246, 252, 0.8);
+        --scrollbar-thumb: rgba(15, 23, 42, 0.15);
+        --scrollbar-thumb-hover: rgba(15, 23, 42, 0.3);
+        --noise-opacity: 0.02;
+        --code-color: #2d4a8f;
+        --card-shadow:
+            inset 0 1px 0 #ffffff,
+            0 1px 3px rgba(15, 23, 42, 0.06),
+            0 20px 60px -20px rgba(15, 23, 42, 0.15);
+        --btn-shadow:
+            inset 0 1px 0 #ffffff,
+            0 1px 2px rgba(15, 23, 42, 0.06);
+        --btn-shadow-hover:
+            inset 0 1px 0 #ffffff,
+            0 4px 14px rgba(15, 23, 42, 0.1),
+            0 0 0 1px rgba(59, 110, 255, 0.12);
+        --logo-grad-1: #1a1f2e;
+        --logo-grad-2: #5a6b8e;
+    }
+
+    html[data-theme="light"] body::after { opacity: 0.55; }
+
+    * { box-sizing: border-box; }
     html, body { height: 100%; }
 
     body {
@@ -49,7 +139,32 @@
         font-size: 15px;
         line-height: 1.55;
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
         position: relative;
+        overflow-x: hidden;
+        transition:
+            background-color 0.4s var(--ease),
+            color 0.4s var(--ease);
+    }
+
+    body::after {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(650px 500px at 18% 10%, rgba(79, 124, 255, 0.10), transparent 60%),
+            radial-gradient(550px 450px at 85% 25%, rgba(139, 92, 246, 0.08), transparent 60%),
+            radial-gradient(800px 600px at 50% 105%, rgba(95, 208, 160, 0.05), transparent 60%);
+        animation: bgDrift 24s ease-in-out infinite;
+        will-change: transform;
+        transition: opacity 0.4s var(--ease);
+    }
+
+    @keyframes bgDrift {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50%      { transform: translate(-3%, 2%) scale(1.06); }
     }
 
     body::before {
@@ -58,43 +173,80 @@
         inset: 0;
         z-index: 999;
         pointer-events: none;
-        opacity: 0.035;
+        opacity: var(--noise-opacity);
         mix-blend-mode: overlay;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         background-size: 180px 180px;
-    }
-
-    body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        background: radial-gradient(
-            1200px 600px at 85% -10%,
-            rgba(79, 124, 255, 0.06),
-            transparent 60%
-        );
+        transition: opacity 0.4s var(--ease);
     }
 
     header.top-bar,
-    .layout {
-        position: relative;
-        z-index: 1;
-    }
+    .layout { position: relative; z-index: 1; }
 
     header.top-bar {
-        background: linear-gradient(180deg, #0a0f1c 0%, var(--bg-header) 100%);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: var(--header-bg);
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
         border-bottom: 1px solid var(--border);
-        padding: 16px 28px;
+        padding: 14px 28px;
+        transition:
+            background-color 0.3s var(--ease),
+            border-color 0.3s var(--ease);
     }
 
+    .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        animation: fadeDown 0.7s var(--ease) both;
+    }
+
+    .brand-icon {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        filter: drop-shadow(0 0 10px var(--accent-glow));
+        transition: transform 0.5s var(--ease-spring);
+    }
+
+    .brand-icon svg {
+        width: 24px;
+        height: 24px;
+        animation: spinSlow 18s linear infinite;
+    }
+
+    .brand:hover .brand-icon { transform: rotate(20deg); }
+
     .logo {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.015em;
         margin: 0;
-        color: var(--text-primary);
+        background: linear-gradient(180deg, var(--logo-grad-1) 0%, var(--logo-grad-2) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        transition: background 0.4s var(--ease);
+    }
+
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
 
     .layout {
@@ -104,57 +256,124 @@
         margin: 0 auto;
         padding: 36px 28px 80px;
         gap: 28px;
+        animation: fadeIn 0.6s var(--ease) both;
     }
 
-    .content {
-        flex: 1;
-        min-width: 0;
-    }
+    .content { flex: 1; min-width: 0; }
 
     .sidebar {
         width: var(--sidebar-width);
         flex-shrink: 0;
         position: sticky;
-        top: 28px;
+        top: 92px;
         display: flex;
         flex-direction: column;
         gap: 8px;
         align-items: stretch;
+        animation: fadeIn 0.7s var(--ease) both;
+        animation-delay: 0.1s;
     }
 
     .sidebar-divider {
         height: 1px;
-        background: var(--border);
-        margin: 4px 0;
+        background: linear-gradient(90deg,
+            transparent 0%,
+            var(--border) 15%,
+            var(--border) 85%,
+            transparent 100%);
+        margin: 6px 4px;
+    }
+
+    /* ─── Command rows ────────────────────────────────────────── */
+    .cmd-row {
+        display: flex;
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    .cmd-row .btn-command {
+        flex: 1;
+        min-width: 0;
     }
 
     .btn-command {
+        position: relative;
+        overflow: hidden;
         background: linear-gradient(180deg, var(--surface-top), var(--surface));
         color: var(--text-primary);
         border: 1px solid var(--border-strong);
         border-radius: var(--radius-sm);
-        padding: 10px 14px;
+        padding: 10px 14px 10px 16px;
         font-family: inherit;
         font-size: 13px;
         font-weight: 500;
         text-align: left;
         cursor: pointer;
         width: 100%;
-        box-shadow:
-            inset 0 1px 0 var(--highlight),
-            0 1px 2px rgba(0, 0, 0, 0.3);
-        transition: background 0.12s ease, border-color 0.12s ease,
-                    box-shadow 0.1s ease, transform 0.08s ease;
+        box-shadow: var(--btn-shadow);
+        transition:
+            transform 0.2s var(--ease),
+            background 0.2s var(--ease),
+            border-color 0.2s var(--ease),
+            box-shadow 0.25s var(--ease),
+            color 0.2s var(--ease);
+    }
+
+    .btn-command::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 50%;
+        width: 2px;
+        height: 0;
+        border-radius: 2px;
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent-glow);
+        transform: translateY(-50%);
+        transition: height 0.25s var(--ease);
+    }
+
+    .btn-command::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.07) 50%,
+            transparent 70%);
+        transform: translateX(-120%);
+        transition: transform 0.7s var(--ease);
+        pointer-events: none;
     }
 
     .btn-command:hover {
         background: linear-gradient(180deg, var(--surface-hover), var(--surface-top));
-        border-color: var(--accent);
+        border-color: rgba(79, 124, 255, 0.5);
+        transform: translateY(-1px);
+        box-shadow: var(--btn-shadow-hover);
     }
 
+    .btn-command:hover::before { height: 60%; }
+    .btn-command:hover::after  { transform: translateX(120%); }
+
     .btn-command:active {
-        transform: translateY(1px);
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+        transform: translateY(1px) scale(0.995);
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+        transition-duration: 0.06s;
+    }
+
+    .btn-command:focus-visible {
+        outline: none;
+        box-shadow:
+            0 0 0 2px var(--bg),
+            0 0 0 4px var(--accent),
+            inset 0 1px 0 var(--highlight);
+    }
+
+    .btn-command:disabled {
+        cursor: progress;
+        opacity: 0.55;
+        transform: none;
     }
 
     .btn-command.is-active {
@@ -164,90 +383,274 @@
         font-weight: 600;
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.25),
-            0 2px 8px rgba(79, 124, 255, 0.25);
+            0 4px 20px var(--accent-glow),
+            0 0 0 1px rgba(79, 124, 255, 0.5);
+        animation: activePulse 2.2s ease-in-out infinite;
     }
+
+    .btn-command.is-active::before { display: none; }
 
     .btn-command.btn-secondary {
         color: var(--text-secondary);
         font-size: 12.5px;
     }
 
+    .btn-command.btn-secondary:hover { color: var(--text-primary); }
+
     .btn-command.btn-secondary.is-active {
         background: linear-gradient(180deg, var(--accent-top), var(--accent));
         color: var(--accent-text);
     }
 
+    @keyframes activePulse {
+        0%, 100% {
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                0 4px 20px var(--accent-glow),
+                0 0 0 1px rgba(79, 124, 255, 0.5);
+        }
+        50% {
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                0 4px 28px rgba(79, 124, 255, 0.55),
+                0 0 0 4px rgba(79, 124, 255, 0.12);
+        }
+    }
+
+    /* ─── Download buttons next to commands ──────────────────── */
+    .cmd-downloads {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .btn-download {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        background: linear-gradient(180deg, var(--surface-top), var(--surface));
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: var(--btn-shadow);
+        position: relative;
+        transition:
+            color 0.2s var(--ease),
+            border-color 0.2s var(--ease),
+            background 0.2s var(--ease),
+            box-shadow 0.2s var(--ease),
+            transform 0.15s var(--ease);
+    }
+
+    .cmd-row.is-available .btn-download {
+        display: flex;
+        animation: downloadPop 0.4s var(--ease-spring) both;
+    }
+
+    @keyframes downloadPop {
+        from { opacity: 0; transform: scale(0.5) translateX(-12px); }
+        to   { opacity: 1; transform: scale(1) translateX(0); }
+    }
+
+    .btn-download:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow:
+            var(--btn-shadow-hover),
+            0 0 12px var(--accent-soft);
+    }
+
+    .btn-download:active {
+        transform: translateY(0) scale(0.92);
+    }
+
+    .btn-download:focus-visible {
+        outline: none;
+        box-shadow:
+            0 0 0 2px var(--bg),
+            0 0 0 4px var(--accent);
+    }
+
+    .btn-download svg {
+        width: 16px;
+        height: 16px;
+        pointer-events: none;
+    }
+
+    .btn-download::after {
+        content: attr(data-label);
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        transform: translateX(-50%) translateY(4px);
+        background: var(--surface-top);
+        border: 1px solid var(--border-strong);
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-primary);
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s var(--ease);
+        z-index: 100;
+        box-shadow: var(--btn-shadow-hover);
+    }
+
+    .btn-download:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── Status ─────────────────────────────────────────────── */
     .status-line {
-        min-height: 18px;
+        min-height: 22px;
         font-size: 13px;
         color: var(--text-muted);
         margin-bottom: 20px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        transition: color 0.3s var(--ease);
     }
 
     .status-dot {
-        width: 7px;
-        height: 7px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: var(--text-muted);
+        background: var(--text-dim);
         flex-shrink: 0;
+        transition: all 0.35s var(--ease);
     }
 
-    .status-line.ok .status-dot { background: var(--success); }
-    .status-line.fail .status-dot { background: var(--error); }
+    .status-line:has(#status-text:not(:empty)):not(.ok):not(.fail) .status-dot {
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent-glow);
+        animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+    .status-line.ok .status-dot {
+        background: var(--success);
+        box-shadow: 0 0 12px var(--success-glow);
+    }
+    .status-line.ok { color: var(--success); }
+
+    .status-line.fail .status-dot {
+        background: var(--error);
+        box-shadow: 0 0 12px var(--error-glow);
+    }
     .status-line.fail { color: var(--error); }
 
+    @keyframes dotPulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.45; transform: scale(1.35); }
+    }
+
+    /* ─── Card / Report ──────────────────────────────────────── */
     .card {
+        position: relative;
         background: linear-gradient(180deg, var(--surface-top), var(--surface));
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
         padding: 28px 32px;
         margin-bottom: 20px;
-        box-shadow:
-            inset 0 1px 0 var(--highlight),
-            0 1px 0 rgba(0, 0, 0, 0.2);
+        box-shadow: var(--card-shadow);
+        animation: cardIn 0.7s var(--ease) both;
+        animation-delay: 0.15s;
+        overflow: hidden;
+        transition:
+            background 0.4s var(--ease),
+            border-color 0.4s var(--ease),
+            box-shadow 0.4s var(--ease);
+    }
+
+    .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 15%;
+        right: 15%;
+        height: 1px;
+        background: linear-gradient(90deg,
+            transparent,
+            rgba(79, 124, 255, 0.5),
+            transparent);
+        opacity: 0.6;
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .card h2.card-label {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.08em;
         color: var(--text-muted);
-        margin: 0 0 20px;
+        margin: 0 0 22px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: border-color 0.4s var(--ease);
     }
+
+    .card h2.card-label::before {
+        content: "";
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    #report-output { animation: fadeIn 0.4s var(--ease) both; }
 
     #report-output:empty::before {
         content: "Нажми любую кнопку слева, чтобы сгенерировать report.md.";
+        display: block;
+        padding: 36px 20px;
+        text-align: center;
         color: var(--text-muted);
         font-size: 13px;
+        border: 1px dashed var(--border-strong);
+        border-radius: var(--radius-md);
+        background: var(--accent-soft);
     }
 
     #report-output h1 {
-        font-size: 20px;
+        font-size: 21px;
         font-weight: 600;
-        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+        margin: 0 0 6px;
         color: var(--text-primary);
     }
 
     #report-output h2 {
-        font-size: 14px;
+        font-size: 12.5px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.06em;
         color: var(--text-muted);
         margin: 28px 0 12px;
-        padding-top: 16px;
+        padding-top: 18px;
         border-top: 1px solid var(--border);
+        transition: border-color 0.4s var(--ease);
     }
 
     #report-output h2:first-of-type { border-top: none; padding-top: 0; }
 
     #report-output p {
         color: var(--text-secondary);
-        font-size: 13px;
+        font-size: 13.5px;
         margin: 0 0 12px;
     }
 
@@ -261,59 +664,221 @@
         border-collapse: collapse;
         width: 100%;
         font-size: 13px;
-        margin-bottom: 8px;
+        margin: 8px 0 12px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        transition: border-color 0.4s var(--ease);
     }
 
     #report-output thead th {
         border-bottom: 1px solid var(--border-strong);
-        padding: 8px 14px;
+        padding: 10px 14px;
         text-align: left;
         color: var(--text-secondary);
         font-weight: 500;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: var(--accent-soft);
     }
 
     #report-output tbody td {
-        padding: 8px 14px;
+        padding: 9px 14px;
         border-bottom: 1px solid var(--border);
         color: var(--text-primary);
     }
 
-    #report-output tbody tr:hover { background: var(--surface-hover); }
+    #report-output tbody tr:last-child td { border-bottom: none; }
+    #report-output tbody tr { transition: background 0.15s ease; }
+    #report-output tbody tr:hover { background: var(--accent-soft); }
 
     #report-output img {
         display: block;
-        width: 100%;
-        max-width: 640px;
-        margin: 8px auto 0;
+        max-width: min(720px, 100%);
+        height: auto;
+        margin: 14px auto 0;
         border-radius: var(--radius-md);
         border: 1px solid var(--border);
         box-shadow: inset 0 1px 0 var(--highlight);
+        transition:
+            transform 0.35s var(--ease),
+            box-shadow 0.35s var(--ease),
+            border-color 0.4s var(--ease),
+            opacity 0.3s var(--ease);
+    }
+
+    #report-output img:hover {
+        transform: scale(1.01);
+        box-shadow:
+            inset 0 1px 0 var(--highlight),
+            0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* битая картинка — подсвечиваем сразу, чтобы было видно */
+    #report-output img.broken-image {
+        border: 1px dashed var(--error);
+        background: var(--bg-deep);
+        min-height: 80px;
+        width: 100%;
+        max-width: 400px;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    #report-output img.broken-image:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: var(--error);
     }
 
     #report-output code {
-        background: var(--bg);
+        background: var(--bg-deep);
         border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 1px 5px;
+        border-radius: 5px;
+        padding: 1px 6px;
         font-size: 12.5px;
+        color: var(--code-color);
+        transition:
+            background 0.4s var(--ease),
+            border-color 0.4s var(--ease),
+            color 0.4s var(--ease);
     }
 
+    #report-output a {
+        color: var(--accent-top);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    #report-output a:hover {
+        color: var(--text-primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    /* ─── Theme toggle ───────────────────────────────────────── */
+    .theme-toggle {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--border-strong);
+        background: var(--surface);
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        flex-shrink: 0;
+        box-shadow: var(--btn-shadow);
+        transition:
+            color 0.25s var(--ease),
+            border-color 0.25s var(--ease),
+            background-color 0.3s var(--ease),
+            transform 0.4s var(--ease-spring),
+            box-shadow 0.3s var(--ease);
+    }
+
+    .theme-toggle:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        transform: rotate(15deg);
+        box-shadow: var(--btn-shadow-hover), 0 0 20px var(--accent-glow);
+    }
+
+    .theme-toggle:active { transform: rotate(15deg) scale(0.9); }
+
+    .theme-toggle:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    }
+
+    .theme-toggle svg {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        transition: opacity 0.35s ease, transform 0.5s var(--ease-spring);
+    }
+
+    .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+    .theme-toggle .icon-sun  { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+
+    html[data-theme="light"] .theme-toggle .icon-moon {
+        opacity: 0; transform: rotate(90deg) scale(0.4);
+    }
+    html[data-theme="light"] .theme-toggle .icon-sun {
+        opacity: 1; transform: rotate(0deg) scale(1);
+    }
+
+    /* ─── Global polish ──────────────────────────────────────── */
+    ::selection {
+        background: rgba(79, 124, 255, 0.35);
+        color: #ffffff;
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 10px;
+        border: 2px solid var(--bg);
+        transition: background 0.2s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
     @media (max-width: 760px) {
-        .layout { flex-direction: column; }
+        .layout {
+            flex-direction: column;
+            padding: 24px 16px 60px;
+        }
         .sidebar {
             width: 100%;
             position: static;
             flex-direction: row;
             flex-wrap: wrap;
         }
-        .btn-command { width: auto; }
+        .cmd-row { width: auto; max-width: 100%; }
+        .cmd-row .btn-command { width: auto; flex: none; }
+        header.top-bar { padding: 12px 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
     }
 </style>
 </head>
 <body>
 
 <header class="top-bar">
-    <h1 class="logo">ScipyFounder</h1>
+    <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="2.4" fill="currentColor"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.4" stroke="currentColor" stroke-width="1.4"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.4" stroke="currentColor" stroke-width="1.4" transform="rotate(60 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.4" stroke="currentColor" stroke-width="1.4" transform="rotate(-60 12 12)"/>
+            </svg>
+        </div>
+        <h1 class="logo">SpiesFounder</h1>
+    </div>
+    <button id="theme-toggle" class="theme-toggle" type="button"
+            aria-label="Переключить тему" title="Переключить тему">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+    </button>
 </header>
 
 <div class="layout">
@@ -333,29 +898,138 @@
 </div>
 
 <script>
+    /* ─── Иконки для кнопок скачивания ──────────────────────────── */
+    const ICON_MD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+        <path d="M14 3v6h6"/>
+        <path d="M8 14h8M8 18h5"/>
+    </svg>`;
+
+    const ICON_CSV = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2"/>
+        <path d="M3 10h18M9 10v10M15 10v10"/>
+    </svg>`;
+
+    const ICON_ZIP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"/>
+        <path d="M3 8l2-4h14l2 4"/>
+        <path d="M10 12h4"/>
+    </svg>`;
+
+    const ICON_IMG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/>
+    </svg>`;
+
+    const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v12M6 11l6 6 6-6M5 21h14"/>
+    </svg>`;
+
+    function iconFor(kind) {
+        if (kind === "csv") return ICON_CSV;
+        if (kind === "zip") return ICON_ZIP;
+        if (kind === "img") return ICON_IMG;
+        if (kind === "download") return ICON_DOWNLOAD;
+        return ICON_MD;
+    }
+
+    /* ─── Конфиг кнопок ──────────────────────────────────────────
+     *
+     * downloads — массив иконок скачивания (появятся после успешной команды).
+     * ───────────────────────────────────────────────────────────── */
+    const DEFAULT_DOWNLOADS = [
+        { label: "Отчёт .md", url: "/report.md", icon: "md", filename: "report.md" },
+    ];
+
     const BUTTONS = [
-        { command: "download_raw_data",       label: "Download raw data", secondary: true },
-        { command: "download_processed_data", label: "Download processed data", secondary: true },
+        {
+            command: "documents_checker",
+            label: "Find irregularities in the documents",
+            downloads: [
+                { label: "Artefacts .csv", url: "/api/files/artefacts.csv", icon: "csv", filename: "artefacts.csv" },
+            ]
+        },
+        {
+            command: "find_discrepancy_in_verification_data",
+            label: "Find discrepancy in verification data",
+            downloads: [
+                { label: "Discrepancy .csv", url: "/api/files/discrepancy.csv", icon: "csv", filename: "discrepancy.csv" },
+            ]
+        },
+        {
+            command: "find_ghosts",
+            label: "Find ghosts",
+            downloads: [
+                { label: "Ghosts .csv", url: "/api/files/ghosts.csv", icon: "csv", filename: "ghosts.csv" },
+            ],
+        },
+        {
+            command: "shadow_groups_finder",
+            label: "Find shadow groups",
+            downloads: [
+                { label: "Отчёт .md",   url: "/api/files/shadow_groups.md",  icon: "md",  filename: "shadow_groups.md" },
+                { label: "Группы .csv", url: "/api/files/shadow_groups.csv", icon: "csv", filename: "shadow_groups.csv" },
+            ],
+        },
+        {
+            command: "spies_finder_in_BoardingData_csv",
+            label: "Finder spies in BoardingData",
+            downloads: [
+                { label: "Отчёт .md",          url: "/report.md",                  icon: "md",  filename: "spies.md" },
+                { label: "Bad documents .csv", url: "/api/files/bad_document.csv", icon: "csv", filename: "bad_document.csv" },
+            ]
+        },
 
         { divider: true },
 
-        { command: "documents_checker",                     label: "Find irregularities in the documents" },
-        { command: "find_discrepancy_in_verification_data", label: "Find discrepancy in verification data"},
-        { command: "find_ghosts",                           label: "Find ghosts"},
-        { command: "shadow_groups_finder",                  label: "Find shadow groups"},
-        { command: "spies_finder_in_BoardingData_csv",      label: "Finder spies in BoardingData"},
-
-        { divider: true },
-
-        { command: "full_analysis",      label: "Full analysis"},
-        <!-- Ниже добавлять новые кнопки -->
-        { command: "Count rows in files", label: "Count rows in files" },
+        {
+            command: "static_analysis",
+            label: "Static analysis",
+            downloads: [
+                { label: "Chart age",        url: "/api/files/chart_age.svg",        icon: "img", filename: "chart_age.svg" },
+                { label: "Chart arrivals",   url: "/api/files/chart_arrivals.svg",   icon: "img", filename: "chart_arrivals.svg" },
+                { label: "Chart departures", url: "/api/files/chart_departures.svg", icon: "img", filename: "chart_departures.svg" },
+            ]
+        },
+        {
+            command: "full_analysis",
+            label: "Full analysis",
+            downloads: [
+                { label: "Полный отчёт .md", url: "/report.md", icon: "md", filename: "full_report.md" },
+            ],
+        },
+       // // Ниже добавлять новые кнопки
+        //{
+       //    command: "Count rows in files",
+       //    label: "Count rows in files",
+       //    downloads: [
+       //        { label: "Отчёт .md", url: "/report.md", icon: "md", filename: "count_rows.md" },
+       //    ],
+       //},
     ];
 
     const sidebar = document.getElementById("sidebar");
     const statusLine = document.getElementById("status-line");
     const statusText = document.getElementById("status-text");
     const reportOutput = document.getElementById("report-output");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    let running = false;
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+            const current = document.documentElement.getAttribute("data-theme") || "dark";
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            try { localStorage.setItem("theme", next); } catch (_) {}
+        });
+    }
 
     function setStatus(status, name) {
         statusLine.classList.remove("ok", "fail");
@@ -370,6 +1044,38 @@
         }
     }
 
+    /* ─── Починка путей к картинкам из report.md ───────────────────
+     * В markdown могут быть относительные пути (`chart_age.svg`,
+     * `./plots/foo.png`, `../src/static_an/bar.svg` и т.п.).
+     * Браузер резолвит их относительно `/`, что даёт 404.
+     * Здесь мы приводим все не-абсолютные пути к /static_an/<basename>,
+     * а внешние (http://, data:, //) не трогаем.
+     * ──────────────────────────────────────────────────────────── */
+    function fixImagePaths() {
+        reportOutput.querySelectorAll("img").forEach(img => {
+            const raw = img.getAttribute("src") || "";
+            if (!raw) return;
+
+            // внешние и уже готовые — не трогаем
+            if (/^(https?:|\/\/|data:|blob:)/i.test(raw)) return;
+            if (raw.startsWith("/static_an/")) return;
+
+            // берём basename без query/hash, унифицируем слеши
+            const cleaned = raw.replace(/\\/g, "/").split(/[?#]/)[0];
+            const basename = cleaned.split("/").pop();
+            if (!basename) return;
+
+            img.src = `/static_an/${basename}`;
+
+            // если файл не найден — подсветим
+            img.addEventListener("error", () => {
+                img.classList.add("broken-image");
+                if (!img.alt) img.alt = `[not found: ${basename}]`;
+                else img.alt = `[not found: ${basename}] ${img.alt}`;
+            }, { once: true });
+        });
+    }
+
     async function refreshReport() {
         try {
             const res = await fetch(`/report.md?t=${Date.now()}`);
@@ -377,6 +1083,7 @@
 
             if (window.marked) {
                 reportOutput.innerHTML = marked.parse(text);
+                fixImagePaths();
             } else {
                 const pre = document.createElement("pre");
                 pre.textContent = text;
@@ -389,11 +1096,20 @@
     }
 
     async function runCommand(name, btn) {
-        statusText.textContent = `Выполняется: ${name} ...`;
-        statusLine.classList.remove("ok", "fail");
-        document.querySelectorAll(".btn-command").forEach(b => b.classList.remove("is-active"));
-        btn.classList.add("is-active");
+        if (running) return;
+        running = true;
 
+        const row = btn.closest(".cmd-row");
+
+        document.querySelectorAll(".btn-command").forEach(b => {
+            b.disabled = true;
+            if (b !== btn) b.classList.remove("is-active");
+        });
+        btn.classList.add("is-active");
+        statusLine.classList.remove("ok", "fail");
+        statusText.textContent = `Выполняется: ${name} ...`;
+
+        const t0 = performance.now();
         try {
             const res = await fetch("/api/command", {
                 method: "POST",
@@ -402,18 +1118,27 @@
             });
 
             const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Ошибка запроса");
 
-            if (!res.ok) {
-                statusLine.classList.add("fail");
-                statusText.textContent = data.error || "Ошибка запроса";
-                return;
-            }
-
-            setStatus(data.status, name);
+            const secs = ((performance.now() - t0) / 1000).toFixed(1);
+            setStatus(data.status, `${name} (${secs} с)`);
             await refreshReport();
+
+            // Показываем кнопки скачивания только для последней успешной команды
+            if (data.status === "0" && row) {
+                document.querySelectorAll(".cmd-row.is-available").forEach(r => {
+                    if (r !== row) r.classList.remove("is-available");
+                });
+                row.classList.add("is-available");
+            }
         } catch (err) {
             statusLine.classList.add("fail");
-            statusText.textContent = `Ошибка сети: ${err}`;
+            statusText.textContent = `Ошибка: ${err.message}`;
+        } finally {
+            running = false;
+            document.querySelectorAll(".btn-command").forEach(b => {
+                b.disabled = false;
+            });
         }
     }
 
@@ -425,11 +1150,38 @@
             return;
         }
 
+        const row = document.createElement("div");
+        row.className = "cmd-row";
+        row.dataset.command = item.command;
+
         const btn = document.createElement("button");
         btn.className = "btn-command" + (item.secondary ? " btn-secondary" : "");
         btn.textContent = item.label;
         btn.addEventListener("click", () => runCommand(item.command, btn));
-        sidebar.appendChild(btn);
+        row.appendChild(btn);
+
+        const downloads = item.downloads || DEFAULT_DOWNLOADS;
+        if (downloads && downloads.length) {
+            const dl = document.createElement("div");
+            dl.className = "cmd-downloads";
+
+            downloads.forEach((d, i) => {
+                const a = document.createElement("a");
+                a.className = "btn-download";
+                a.href = d.url;
+                a.download = d.filename || "";
+                a.dataset.label = d.label;
+                a.setAttribute("aria-label", d.label);
+                a.title = d.label;
+                a.innerHTML = iconFor(d.icon);
+                a.style.animationDelay = `${i * 70}ms`;
+                dl.appendChild(a);
+            });
+
+            row.appendChild(dl);
+        }
+
+        sidebar.appendChild(row);
     });
 
     refreshReport();
