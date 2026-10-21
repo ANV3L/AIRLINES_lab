@@ -2,46 +2,46 @@
 <text x='600' y='40' text-anchor='middle' font-size='24' font-weight='bold' font-family='Arial, sans-serif'>Топ-10 аэропортов прилета (подозрительные лица)</text>
 <line x1='350' y1='80' x2='350' y2='565' stroke='#333' stroke-width='2'/>
 <line x1='350' y1='565' x2='1050' y2='565' stroke='#333' stroke-width='2'/>
-<text x='700' y='680' text-anchor='middle' font-size='18' font-family='Arial, sans-serif'>Код IATA</text>
-<text x='30' y='330' text-anchor='middle' font-size='18' font-family='Arial, sans-serif' transform='rotate(-90 30 330)'>Кол-во прилетов</text>
+<text x='700' y='680' text-anchor='middle' font-size='18' font-family='Arial, sans-serif'>Количество прилетов</text>
+<text x='30' y='330' text-anchor='middle' font-size='18' font-family='Arial, sans-serif' transform='rotate(-90 30 330)'>Код аэропорта прилета (IATA)</text>
 <line x1='490' y1='80' x2='490' y2='565' stroke='#ddd' stroke-width='1' stroke-dasharray='6'/>
-<text x='490' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>115</text>
+<text x='490' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>10346</text>
 <line x1='630' y1='80' x2='630' y2='565' stroke='#ddd' stroke-width='1' stroke-dasharray='6'/>
-<text x='630' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>231</text>
+<text x='630' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>20692</text>
 <line x1='770' y1='80' x2='770' y2='565' stroke='#ddd' stroke-width='1' stroke-dasharray='6'/>
-<text x='770' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>347</text>
+<text x='770' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>31039</text>
 <line x1='910' y1='80' x2='910' y2='565' stroke='#ddd' stroke-width='1' stroke-dasharray='6'/>
-<text x='910' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>463</text>
+<text x='910' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>41385</text>
 <line x1='1050' y1='80' x2='1050' y2='565' stroke='#ddd' stroke-width='1' stroke-dasharray='6'/>
-<text x='1050' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>579</text>
+<text x='1050' y='595' text-anchor='middle' font-size='16' fill='#666' font-family='Arial, sans-serif'>51732</text>
 <rect x='350' y='80' width='700' height='35' fill='#2ecc71'/>
 <text x='335' y='104' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>SVO</text>
-<text x='1065' y='104' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>579 раз</text>
-<rect x='350' y='130' width='117' height='35' fill='#2ecc71'/>
+<text x='1065' y='104' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>51732 раз</text>
+<rect x='350' y='130' width='98' height='35' fill='#2ecc71'/>
 <text x='335' y='154' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>KHV</text>
-<text x='482' y='154' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>97 раз</text>
-<rect x='350' y='180' width='100' height='35' fill='#2ecc71'/>
+<text x='463' y='154' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>7256 раз</text>
+<rect x='350' y='180' width='60' height='35' fill='#2ecc71'/>
 <text x='335' y='204' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>VVO</text>
-<text x='465' y='204' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>83 раз</text>
-<rect x='350' y='230' width='56' height='35' fill='#2ecc71'/>
+<text x='425' y='204' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>4441 раз</text>
+<rect x='350' y='230' width='39' height='35' fill='#2ecc71'/>
 <text x='335' y='254' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>UUS</text>
-<text x='421' y='254' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>47 раз</text>
-<rect x='350' y='280' width='31' height='35' fill='#2ecc71'/>
-<text x='335' y='304' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>SVX</text>
-<text x='396' y='304' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>26 раз</text>
-<rect x='350' y='330' width='30' height='35' fill='#2ecc71'/>
-<text x='335' y='354' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>AER</text>
-<text x='395' y='354' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>25 раз</text>
-<rect x='350' y='380' width='25' height='35' fill='#2ecc71'/>
-<text x='335' y='404' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>ROV</text>
-<text x='390' y='404' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>21 раз</text>
-<rect x='350' y='430' width='24' height='35' fill='#2ecc71'/>
-<text x='335' y='454' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>PKC</text>
-<text x='389' y='454' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>20 раз</text>
-<rect x='350' y='480' width='22' height='35' fill='#2ecc71'/>
-<text x='335' y='504' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>CEK</text>
-<text x='387' y='504' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>19 раз</text>
-<rect x='350' y='530' width='22' height='35' fill='#2ecc71'/>
-<text x='335' y='554' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>KZN</text>
-<text x='387' y='554' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>19 раз</text>
+<text x='404' y='254' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>2898 раз</text>
+<rect x='350' y='280' width='24' height='35' fill='#2ecc71'/>
+<text x='335' y='304' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>AER</text>
+<text x='389' y='304' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>1819 раз</text>
+<rect x='350' y='330' width='16' height='35' fill='#2ecc71'/>
+<text x='335' y='354' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>KRR</text>
+<text x='381' y='354' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>1200 раз</text>
+<rect x='350' y='380' width='15' height='35' fill='#2ecc71'/>
+<text x='335' y='404' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>UFA</text>
+<text x='380' y='404' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>1170 раз</text>
+<rect x='350' y='430' width='14' height='35' fill='#2ecc71'/>
+<text x='335' y='454' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>ROV</text>
+<text x='379' y='454' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>1057 раз</text>
+<rect x='350' y='480' width='13' height='35' fill='#2ecc71'/>
+<text x='335' y='504' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>OVB</text>
+<text x='378' y='504' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>979 раз</text>
+<rect x='350' y='530' width='11' height='35' fill='#2ecc71'/>
+<text x='335' y='554' text-anchor='end' font-size='16' font-family='Arial, sans-serif'>YEKATERINBURG</text>
+<text x='376' y='554' font-size='16' font-weight='bold' font-family='Arial, sans-serif'>834 раз</text>
 </svg>

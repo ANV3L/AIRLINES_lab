@@ -13,8 +13,7 @@
 
 namespace fs = std::filesystem;
 
-// --- Список главных подозреваемых из Критических Находок ---
-// Сюда можно добавлять имена из ваших алертов (поиск идет по вхождению подстроки)
+// --- Список главных подозреваемых ---
 std::set<std::string> CRITICAL_SUSPECTS = {
     "GLEBOV GORDEI",
     "BUROV RAMIL",
@@ -27,13 +26,15 @@ struct Person {
     std::string fio;
     bool is_suspicious = false;
     int age_at_issue = -1;
-    std::set<std::string> dep_airports;
-    std::set<std::string> arr_airports;
+    std::map<std::string, int> dep_airports;
+    std::map<std::string, int> arr_airports;
 };
 
 struct SuspectStats {
     std::map<std::string, int> deps;
     std::map<std::string, int> arrs;
+    int age_at_issue = -1;
+    bool found_in_base = false;
 };
 
 // --- Утилиты ---
@@ -54,7 +55,24 @@ std::string to_upper(std::string s) {
     return s;
 }
 
-// Форматирование топ-3 маршрутов для таблицы
+// Объединение городов и кодов IATA
+std::string normalize_airport(std::string a) {
+    a = to_upper(trim(a));
+    if (a == "MOSCOW" || a == "МОСКВА") return "SVO";
+    if (a == "KHABAROVSK" || a == "ХАБАРОВСК") return "KHV";
+    if (a == "VLADIVOSTOK" || a == "ВЛАДИВОСТОК") return "VVO";
+    if (a == "SOCHI" || a == "СОЧИ") return "AER";
+    if (a == "YUZHNO" || a == "ЮЖНО-САХАЛИНСК") return "UUS";
+    if (a == "ST. PETERSBURG" || a == "САНКТ-ПЕТЕРБУРГ" || a == "SAINT PETERSBURG") return "LED";
+    if (a == "NOVOSIBIRSK" || a == "НОВОСИБИРСК") return "OVB";
+    if (a == "EKATERINBURG" || a == "ЕКАТЕРИНБУРГ") return "SVX";
+    if (a == "KRASNODAR" || a == "КРАСНОДАР") return "KRR";
+    if (a == "ROSTOV" || a == "РОСТОВ-НА-ДОНУ") return "ROV";
+    // Если это уже код IATA (3 буквы), возвращаем как есть
+    if (a.length() == 3) return a;
+    return a;
+}
+
 std::string format_top_routes(const std::map<std::string, int>& routes) {
     if (routes.empty()) return "нет данных";
     std::vector<std::pair<std::string, int>> sorted(routes.begin(), routes.end());
@@ -97,6 +115,7 @@ void process_file(const fs::path& filepath, std::unordered_map<std::string, Pers
     int idx_doc_series = get_col_idx({"doc_series"});
     int idx_dep = get_col_idx({"dep_airport"});
     int idx_arr = get_col_idx({"arr_airport"});
+    int idx_arr_city = get_col_idx({"arr_city"});
 
     if (idx_last == -1 && idx_first == -1) return;
 
@@ -115,61 +134,66 @@ void process_file(const fs::path& filepath, std::unordered_map<std::string, Pers
 
         if (fio.empty() || fio == " ") continue;
 
-        std::string birth = idx_birth != -1 ? trim(row[idx_birth]) : "";
-        std::string series = idx_doc_series != -1 ? trim(row[idx_doc_series]) : "";
+        std::string person_key = fio;
 
-        std::string dep = idx_dep != -1 ? to_upper(trim(row[idx_dep])) : "";
-        std::string arr = idx_arr != -1 ? to_upper(trim(row[idx_arr])) : "";
-
-        // 1. СБОР СТАТИСТИКИ ПО ГЛАВНЫМ ПОДОЗРЕВАЕМЫМ
-        for (const auto& target : CRITICAL_SUSPECTS) {
-            if (fio.find(target) != std::string::npos) {
-                if (!dep.empty() && dep != "NULL") critical_stats[target].deps[dep]++;
-                if (!arr.empty() && arr != "NULL") critical_stats[target].arrs[arr]++;
-            }
-        }
-
-        // 2. СТАНДАРТНАЯ ЛОГИКА ШПИОНОВ (ДЕТИ/ДО РОЖДЕНИЯ)
-        std::string person_key = fio + "|" + birth;
         if (people.find(person_key) == people.end()) {
             Person p; p.fio = fio;
             people[person_key] = p;
         }
         Person& p = people[person_key];
 
+        std::string birth = idx_birth != -1 ? trim(row[idx_birth]) : "";
+        std::string series = idx_doc_series != -1 ? trim(row[idx_doc_series]) : "";
+
+        std::string dep = idx_dep != -1 ? normalize_airport(row[idx_dep]) : "";
+        std::string arr = idx_arr != -1 ? normalize_airport(row[idx_arr]) : "";
+        if (arr.empty() && idx_arr_city != -1) {
+            arr = normalize_airport(row[idx_arr_city]);
+        }
+
+        int best_age = -1;
         if (!birth.empty() && birth != "NULL" && series.length() == 4) {
             try {
                 int birth_year = std::stoi(birth.substr(0, 4));
                 int yy = std::stoi(series.substr(2, 2));
-                int c1 = 1900 + yy;
-                int c2 = 2000 + yy;
+                int c1 = 1900 + yy, c2 = 2000 + yy;
+                int age1 = c1 - birth_year, age2 = c2 - birth_year;
 
-                int age1 = c1 - birth_year;
-                int age2 = c2 - birth_year;
-
-                int best_age = -1;
                 if (age1 < 0 || age2 < 0) best_age = 0;
                 else if (age1 >= 0 && age1 < 11) best_age = age1;
                 else if (age2 >= 0 && age2 < 11) best_age = age2;
-
-                if (best_age != -1) {
-                    p.is_suspicious = true;
-                    if (p.age_at_issue == -1) p.age_at_issue = best_age;
-                    else p.age_at_issue = std::min(p.age_at_issue, best_age);
-                }
             } catch (...) {}
         }
 
-        if (p.is_suspicious) {
-            if (!dep.empty() && dep != "NULL") p.dep_airports.insert(dep);
-            if (!arr.empty() && arr != "NULL") p.arr_airports.insert(arr);
+        for (const auto& target : CRITICAL_SUSPECTS) {
+            if (fio.find(target) != std::string::npos) {
+                critical_stats[target].found_in_base = true;
+                if (!dep.empty() && dep != "NULL") critical_stats[target].deps[dep]++;
+                if (!arr.empty() && arr != "NULL") critical_stats[target].arrs[arr]++;
+
+                if (best_age != -1) {
+                    if (critical_stats[target].age_at_issue == -1) critical_stats[target].age_at_issue = best_age;
+                    else critical_stats[target].age_at_issue = std::min(critical_stats[target].age_at_issue, best_age);
+                }
+            }
         }
+
+        if (best_age != -1) {
+            p.is_suspicious = true;
+            if (p.age_at_issue == -1) p.age_at_issue = best_age;
+            else p.age_at_issue = std::min(p.age_at_issue, best_age);
+        }
+
+        if (!dep.empty() && dep != "NULL" && dep != "N/A") p.dep_airports[dep]++;
+        if (!arr.empty() && arr != "NULL" && arr != "N/A") p.arr_airports[arr]++;
     }
 }
 
 // --- Отрисовка барчарта в SVG ---
+// Внимание: в этой функции margin_left отвечает за названия категорий (Y), а x_label - за подпись оси значений (X)
 void draw_bar_chart(const std::string& filename, const std::string& title,
-                    const std::string& x_label, const std::string& y_label,
+                    const std::string& x_label_value, // Подпись снизу (Кол-во)
+                    const std::string& y_label_category, // Подпись слева (Категория)
                     const std::string& unit_suffix,
                     const std::vector<std::pair<std::string, int>>& data,
                     const std::string& color = "#3498db") {
@@ -193,10 +217,14 @@ void draw_bar_chart(const std::string& filename, const std::string& title,
     for (auto& p : data) if (p.second > max_val) max_val = p.second;
 
     svg << "<text x='" << width/2 << "' y='40' text-anchor='middle' font-size='24' font-weight='bold' font-family='Arial, sans-serif'>" << title << "</text>\n";
+
+    // Оси
     svg << "<line x1='" << margin_left << "' y1='" << margin_top << "' x2='" << margin_left << "' y2='" << axis_y << "' stroke='#333' stroke-width='2'/>\n";
     svg << "<line x1='" << margin_left << "' y1='" << axis_y << "' x2='" << (width - margin_right) << "' y2='" << axis_y << "' stroke='#333' stroke-width='2'/>\n";
-    svg << "<text x='" << (margin_left + chart_width/2) << "' y='" << height - 20 << "' text-anchor='middle' font-size='18' font-family='Arial, sans-serif'>" << x_label << "</text>\n";
-    svg << "<text x='30' y='" << (margin_top + chart_height/2) << "' text-anchor='middle' font-size='18' font-family='Arial, sans-serif' transform='rotate(-90 30 " << (margin_top + chart_height/2) << ")'>" << y_label << "</text>\n";
+
+    // Подписи осей (X внизу, Y слева)
+    svg << "<text x='" << (margin_left + chart_width/2) << "' y='" << height - 20 << "' text-anchor='middle' font-size='18' font-family='Arial, sans-serif'>" << x_label_value << "</text>\n";
+    svg << "<text x='30' y='" << (margin_top + chart_height/2) << "' text-anchor='middle' font-size='18' font-family='Arial, sans-serif' transform='rotate(-90 30 " << (margin_top + chart_height/2) << ")'>" << y_label_category << "</text>\n";
 
     for (int i = 1; i <= 5; ++i) {
         int x = margin_left + (chart_width * i) / 5;
@@ -243,14 +271,14 @@ int main() {
         if (p.is_suspicious) {
             age_counts[p.age_at_issue]++;
             unique_suspicious_people++;
-            for (const auto& dep : p.dep_airports) dep_counts[dep]++;
-            for (const auto& arr : p.arr_airports) arr_counts[arr]++;
+
+            for (const auto& pair : p.dep_airports) dep_counts[pair.first] += pair.second;
+            for (const auto& pair : p.arr_airports) arr_counts[pair.first] += pair.second;
         }
     }
 
     std::cout << "Suspicious people found: " << unique_suspicious_people << std::endl;
 
-    // Подготовка данных
     std::vector<std::pair<std::string, int>> age_chart;
     for (auto const& [age, count] : age_counts) {
         std::string label = (age == 0) ? "0 (раньше рождения)" : std::to_string(age) + " лет";
@@ -265,28 +293,36 @@ int main() {
     std::sort(top_arr.begin(), top_arr.end(), [](auto& a, auto& b) { return a.second > b.second; });
     if (top_arr.size() > 10) top_arr.resize(10);
 
-    // Генерация графиков
-    draw_bar_chart("chart_age.svg", "Распределение по возрасту выдачи паспорта", "Возраст", "Кол-во человек", "чел.", age_chart, "#e67e22");
-    draw_bar_chart("chart_departures.svg", "Топ-10 аэропортов вылета (подозрительные лица)", "Код IATA", "Кол-во вылетов", "раз", top_dep, "#3498db");
-    draw_bar_chart("chart_arrivals.svg", "Топ-10 аэропортов прилета (подозрительные лица)", "Код IATA", "Кол-во прилетов", "раз", top_arr, "#2ecc71");
+    // Передаем правильные подписи: X (значение) и Y (категория)
+    draw_bar_chart("chart_age.svg", "Распределение по возрасту выдачи паспорта",
+                   "Количество человек", "Возраст при получении паспорта", "чел.", age_chart, "#e67e22");
+
+    draw_bar_chart("chart_departures.svg", "Топ-10 аэропортов вылета (подозрительные лица)",
+                   "Количество вылетов", "Код аэропорта вылета (IATA)", "раз", top_dep, "#3498db");
+
+    draw_bar_chart("chart_arrivals.svg", "Топ-10 аэропортов прилета (подозрительные лица)",
+                   "Количество прилетов", "Код аэропорта прилета (IATA)", "раз", top_arr, "#2ecc71");
 
     // Отчет
     std::ofstream md("staticAn.md");
     md << "# Статический анализ пассажиров (Поиск шпионов)\n\n";
 
-    // РАЗДЕЛ С ГЛАВНЫМИ ПОДОЗРЕВАЕМЫМИ
     md << "## 🔴 1. Главные подозреваемые (Критические находки)\n";
-    md << "Анализ перелетов лиц, замеченных в подделке документов или махинациях с картами лояльности.\n\n";
-    md << "| Подозреваемый | Чаще всего вылетал из | Чаще всего прилетал в |\n";
-    md << "|---|---|---|\n";
+    md << "| Подозреваемый | Аномалия паспорта | Чаще всего вылетал из | Чаще всего прилетал в |\n";
+    md << "|---|---|---|---|\n";
 
     for (const auto& target : CRITICAL_SUSPECTS) {
-        if (critical_stats.find(target) != critical_stats.end()) {
+        if (critical_stats.find(target) != critical_stats.end() && critical_stats[target].found_in_base) {
+            std::string passport_status = "Нет (нормальный)";
+            if (critical_stats[target].age_at_issue != -1) {
+                if (critical_stats[target].age_at_issue == 0) passport_status = "⚠️ **Да (раньше рождения)**";
+                else passport_status = "⚠️ **Да (в " + std::to_string(critical_stats[target].age_at_issue) + " лет)**";
+            }
             std::string top_dep = format_top_routes(critical_stats[target].deps);
             std::string top_arr = format_top_routes(critical_stats[target].arrs);
-            md << "| **" << target << "** | " << top_dep << " | " << top_arr << " |\n";
+            md << "| **" << target << "** | " << passport_status << " | " << top_dep << " | " << top_arr << " |\n";
         } else {
-            md << "| **" << target << "** | _нет данных_ | _нет данных_ |\n";
+            md << "| **" << target << "** | _нет данных_ | _нет данных_ | _нет данных_ |\n";
         }
     }
     md << "\n---\n\n";
