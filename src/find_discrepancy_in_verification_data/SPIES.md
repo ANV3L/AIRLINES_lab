@@ -6,7 +6,7 @@
 
 | Файл | Строк прочитано | Группа |
 |---|---|---|
-| BoardingData | 155147 | GROUP_1 |
+| BoardingData | 0 | GROUP_1 |
 | sirena | 155757 | GROUP_1 |
 | cleaned_boarding_pass | 615771 | GROUP_1 |
 | xml | 436090 | GROUP_2 |

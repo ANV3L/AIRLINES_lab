@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 normalize_aviation.py
 
@@ -19,15 +17,21 @@ import numpy as np
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-INPUT_DIR = Path('../../resources/processed')
-OUT_DIR = Path('../../resources/processed')
-OUT_DIR.mkdir(exist_ok=True)
+ROOT_DIR = Path(__file__).parent.parent.parent
+INPUT_DIR = ROOT_DIR / "resources" / "processed" / "temp"
+OUT_DIR = ROOT_DIR / "resources" / "processed"
+
+print(INPUT_DIR)
+print(OUT_DIR)
+#INPUT_DIR = Path('../../resources/processed')
+#OUT_DIR = Path('../../resources/processed')
+#OUT_DIR.mkdir(exist_ok=True)
 
 SEP = '|'
 
 
 # ============================================================
-# 1. Транслитерация (правило пользователя)
+# 1. Транслитерация
 # ============================================================
 TRANSLIT_MAP = {
     'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E',
@@ -264,10 +268,6 @@ def safe_split(df, col, default_cols):
             sp[i] = None
     return sp[list(range(len(default_cols)))]
 
-
-# ============================================================
-# 4. Нормализация каждого файла
-# ============================================================
 def normalize_boarding_pass(path):
     df = read_csv_std(path, sep='|')
     if 'PassengerFirstName' in df.columns:
@@ -480,9 +480,7 @@ def process_one(job):
         return name, 0, 0, f"{type(e).__name__}: {e}"
 
 
-# ============================================================
-# 5. main
-# ============================================================
+
 def main():
     tasks = [
         ('BoardingData_parsed.csv',   normalize_boarding_pass),
@@ -508,7 +506,6 @@ def main():
         return
 
     # 7 файлов — многовато для 1 ядра, но мало для большого пула.
-    # min(N, cpu_count) — разумный компромисс.
     max_workers = min(len(jobs), os.cpu_count() or 4)
     print(f"[parallel] {len(jobs)} files, workers={max_workers}")
 
@@ -521,7 +518,6 @@ def main():
             else:
                 print(f"[done] {name}: rows={rows}, cols={cols}")
 
-    # === диагностика (после того как всё досчитано) ===
     print("\n=== пример: правила транслитерации / латинской нормализации ===")
     for raw in ["ОЗЕРОВ ИЛЬДАР ДАНИИЛОВИЧ",
                 "НАТАЛЬЯ ПЕТРОВНА",

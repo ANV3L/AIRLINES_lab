@@ -3,8 +3,8 @@
 В этом отчете собраны подозрительные личности, разделенные по типу нарушений (от самых опасных к менее критичным).
 
 ### 📂 Какие файлы проверяли
-- **BoardingData.csv**: проверено модулями `csv_parser`, `documents_checker`, `find_discrepancy_in_verification_data`
-- **BoardingData_parsed.csv**: проверено модулями `csv_parser`, `normalization`, `shadow_groups_finder`
+- **BoardingData.csv**: проверено модулями `csv_parser`, `find_discrepancy_in_verification_data`
+- **BoardingData_parsed.csv**: проверено модулями `csv_parser`, `documents_checker`, `normalization`, `shadow_groups_finder`
 - **BoardingData_parsed_norm.csv**: проверено модулями `spies_finder_in_BoardingData_csv`
 - **BoardingPass_parsed.csv**: проверено модулями `normalization`
 - **Skyteam_Timetable.csv**: проверено модулями `documents_checker`
@@ -29,12 +29,12 @@
 - **GOLOVINA OLESIA | MASLENNIKOV ROMAN** — bonus card FB 139888197 used by 2 distinct names
 
 **4. ✈️ Теневые группы (летают вместе без общих броней)**
-- **Группа:** AGAFONOV SVIATOGOR D, DANILOV TIHON N — 2 совместных рейсов.
-- **Группа:** KONOVALOVA VALERIA, ANANEVA MELANIA M — 2 совместных рейсов.
-- **Группа:** TUMANOV EDUARD A, ANOHINA DARIA A — 2 совместных рейсов.
-- **Группа:** ANOHINA ELVIRA M, ZIKOVA VITALINA G — 2 совместных рейсов.
-- **Группа:** AVDIVA LIDIA A, KALININ ADEL A — 2 совместных рейсов.
-  _...и еще 86 случаев в этой категории._
+- **Группа:** ROZANOVA ESENIA IGOREVNA, ROZANOVA ESENIA VIACHESLAVOVNA — 10 совместных рейсов.
+- **Группа:** AVDIVA KIRA L, AVDIVA KIRA M — 8 совместных рейсов.
+- **Группа:** KOSTIN SVIATOGOR MARSELEVICH, KOSTIN SVIATOGOR VITALEVICH — 8 совместных рейсов.
+- **Группа:** KUKUSHKIN ILDAR ARSENEVICH, KUKUSHKIN ILDAR NAZAROVICH — 8 совместных рейсов.
+- **Группа:** GORELOVA IANA NIKOLAEVNA, GORELOVA IANA KONSTANTINOVNA — 7 совместных рейсов.
+  _...и еще 2275 случаев в этой категории._
 
 **5. 👻 Призраки (частые перелеты без публичных профилей)**
 - **ID `DT 52115273`** — 24 рейсов (из них бизнесом: 3).
