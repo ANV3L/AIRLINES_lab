@@ -79,10 +79,11 @@ spies_finder_in_BoardingData_csv: .venv/bin/pip
 collect_all_reports: .venv/bin/pip
 	.venv/bin/python src/collect_all_reports/collector.py
 
-normalize: .venv/bin/pip
+normalize: .venv/bin/pip fetch_only_processed
 	.venv/bin/python src/normalization/normalize.py
 
-server: .venv/bin/pip
+server: .venv/bin/pip normalize
+	cp resources/processed/temp/* resources/processed/
 	(setsid xdg-open http://127.0.0.1:5000 >/dev/null 2>&1 &)
 	.venv/bin/python server/app.py
 

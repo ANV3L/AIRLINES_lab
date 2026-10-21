@@ -33,7 +33,7 @@ OUT_REPORT = Path(__file__).resolve().parent / "report.md"
 FILES = [
     {
         "name": "BoardingData",
-        "path": TEMP / "BoardingData.csv",
+        "path": TEMP / "BoardingData_parsed.csv",
         "delim": None,
         "fio": ["PassengerLastName", "PassengerFirstName", "PassengerSecondName"],
         "birth": "PassengerBirthDate",
