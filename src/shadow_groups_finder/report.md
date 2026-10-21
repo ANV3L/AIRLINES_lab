@@ -13,10 +13,10 @@
 1. Группа из 2 человек: ROZANOVA ESENIA IGOREVNA, ROZANOVA ESENIA VIACHESLAVOVNA.
    - Летали вместе **10** раз. Примеры рейсов: SU1104 (2017-06-06), SU1109 (2017-07-08), SU1157 (2017-07-18).
    - Оформлялись через: не указаны.
-2. Группа из 2 человек: AVDIVA KIRA L, AVDIVA KIRA M.
+2. Группа из 2 человек: AVDIVA KIRA M, AVDIVA KIRA L.
    - Летали вместе **8** раз. Примеры рейсов: SU1127 (2017-07-24), SU1169 (2017-09-26), SU1274 (2017-04-15).
    - Оформлялись через: не указаны.
-3. Группа из 2 человек: KOSTIN SVIATOGOR VITALEVICH, KOSTIN SVIATOGOR MARSELEVICH.
+3. Группа из 2 человек: KOSTIN SVIATOGOR MARSELEVICH, KOSTIN SVIATOGOR VITALEVICH.
    - Летали вместе **8** раз. Примеры рейсов: SU1186 (2017-09-04), SU1321 (2017-10-07), SU1324 (2017-09-24).
    - Оформлялись через: не указаны.
 
