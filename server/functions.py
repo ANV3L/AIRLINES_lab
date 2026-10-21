@@ -16,6 +16,10 @@ FILES_TO_PROCESS = [
     "yaml_parsed.csv"
 ]
 
+def show_static_an_result__() -> str:
+
+    return "0"
+
 def count_rows_in_files() -> str:
     try:
         results = []
@@ -87,3 +91,4 @@ find_ghosts = call_overtake_after(target_dir / 'find_ghosts/report.md', REPORT_P
 shadow_groups_finder = call_overtake_after(target_dir / 'shadow_groups_finder/report.md', REPORT_PATH)(checker_shadow_groups__.main)
 spies_finder_in_boarding_data_csv = call_overtake_after(target_dir / 'spies_finder_in_BoardingData_csv/report.md', REPORT_PATH)(spies_finder_in_boarding_data_csv__.main)
 collect_all_reports = call_overtake_after(root_dir / 'report.md', REPORT_PATH)(collect_all_reports__.main)
+show_static_an_result = call_overtake_after(target_dir / 'static_an/staticAn.md', REPORT_PATH)(show_static_an_result__)

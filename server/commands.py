@@ -13,6 +13,7 @@ COMMANDS = {
     "shadow_groups_finder" : shadow_groups_finder,
     "spies_finder_in_BoardingData_csv": spies_finder_in_boarding_data_csv,
     "full_analysis": collect_all_reports,
+    "static_analysis": show_static_an_result
 }
 
 
